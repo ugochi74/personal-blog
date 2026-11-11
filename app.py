@@ -56,6 +56,7 @@ def get_articles():
             "title": post.metadata.get("title", "Untitled"),
             "date": str(post.metadata.get("date", "")),
             "category": post.metadata.get("category", "General"),
+            "content": post.content,
         }
 
         articles.append(article)
@@ -83,11 +84,38 @@ def login_required(function):
 # Homepage
 @app.route("/")
 def home():
-    articles = get_articles()
+    all_articles = get_articles()
+    search_query = request.args.get("q", "").strip()
+    selected_category = request.args.get("category", "").strip()
+
+    categories = sorted({
+        article["category"] for article in all_articles
+    })
+
+    articles = all_articles
+
+    if selected_category:
+        articles = [
+            article for article in articles
+            if article["category"].casefold() == selected_category.casefold()
+        ]
+
+    if search_query:
+        search_term = search_query.casefold()
+        articles = [
+            article for article in articles
+            if search_term in article["title"].casefold()
+            or search_term in article["category"].casefold()
+            or search_term in article["content"].casefold()
+        ]
 
     return render_template(
         "home.html",
-        articles=articles
+        articles=articles,
+        categories=categories,
+        search_query=search_query,
+        selected_category=selected_category,
+        total_articles=len(all_articles)
     )
 
 
