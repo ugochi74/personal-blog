@@ -7,7 +7,7 @@
 
 <section class="welcome">
     <h1>Welcome to My Personal Blog</h1>
-    <p>This is where I share my thoughts, ideas, and experiences.</p>
+    <p>Ideas and lessons on Christian growth, software engineering, and personal development.</p>
 </section>
 
 <section class="articles">
@@ -22,6 +22,7 @@
                     </a>
                 </h3>
 
+                <p class="article-category">{{ article.category }}</p>
                 <p>Published: {{ article.date }}</p>
             </article>
         {% endfor %}
