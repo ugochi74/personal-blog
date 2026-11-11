@@ -55,6 +55,7 @@ def get_articles():
             "slug": article_file.stem,
             "title": post.metadata.get("title", "Untitled"),
             "date": str(post.metadata.get("date", "")),
+            "category": post.metadata.get("category", "General"),
         }
 
         articles.append(article)
@@ -118,6 +119,7 @@ def article(slug):
         "article.html",
         title=post.metadata.get("title", "Untitled"),
         date=post.metadata.get("date", ""),
+        category=post.metadata.get("category", "General"),
         content=content
     )
 
