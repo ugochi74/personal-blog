@@ -421,3 +421,267 @@ footer {
         margin-left: auto;
     }
 }
+
+
+/* Professional public blog theme */
+:root {
+    --page-bg: #f4f6fb;
+    --surface: #ffffff;
+    --ink: #17243b;
+    --muted: #66758b;
+    --brand: #294b78;
+    --brand-dark: #172f50;
+    --accent: #c49a55;
+    --line: #e5eaf1;
+}
+
+body:not(.admin-page) {
+    min-height: 100vh;
+    background:
+        radial-gradient(ellipse at 12% 0%, rgba(212, 224, 241, 0.55), transparent 34rem),
+        var(--page-bg);
+    color: var(--ink);
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+body:not(.admin-page) header {
+    background: linear-gradient(115deg, #142b49, #203f65);
+    padding: 21px 24px;
+    box-shadow: 0 5px 22px rgba(20, 43, 73, 0.13);
+}
+
+body:not(.admin-page) nav {
+    max-width: 1120px;
+    align-items: center;
+    gap: 20px;
+}
+
+body:not(.admin-page) nav a:first-child {
+    font-size: 19px;
+    font-weight: 750;
+    letter-spacing: 0.2px;
+}
+
+body:not(.admin-page) nav a:last-child {
+    color: #dce7f5;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+body:not(.admin-page) nav a:hover {
+    color: #ffffff;
+}
+
+body:not(.admin-page) main {
+    max-width: 1120px;
+    min-height: calc(100vh - 170px);
+    margin: 0 auto;
+    padding: 54px 24px 70px;
+}
+
+body:not(.admin-page) .welcome {
+    position: relative;
+    overflow: hidden;
+    padding: 76px 34px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    background: linear-gradient(125deg, #183454 0%, #2c527d 58%, #42688b 100%);
+    box-shadow: 0 18px 42px rgba(26, 54, 87, 0.16);
+    color: #ffffff;
+    text-align: left;
+}
+
+body:not(.admin-page) .welcome::after {
+    content: "";
+    position: absolute;
+    width: 290px;
+    height: 290px;
+    right: -85px;
+    top: -125px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    box-shadow: 0 0 0 28px rgba(255, 255, 255, 0.035),
+                0 0 0 58px rgba(255, 255, 255, 0.025);
+}
+
+body:not(.admin-page) .welcome h1 {
+    position: relative;
+    z-index: 1;
+    max-width: 720px;
+    margin-bottom: 14px;
+    color: #ffffff;
+    font-size: clamp(32px, 5vw, 46px);
+    line-height: 1.15;
+    letter-spacing: -1px;
+}
+
+body:not(.admin-page) .welcome p {
+    position: relative;
+    z-index: 1;
+    max-width: 620px;
+    color: #dce7f3;
+    font-size: 16px;
+    line-height: 1.8;
+}
+
+body:not(.admin-page) .articles {
+    margin-top: 48px;
+}
+
+body:not(.admin-page) .articles h2 {
+    margin-bottom: 22px;
+    color: var(--ink);
+    font-size: 25px;
+    letter-spacing: -0.4px;
+}
+
+body:not(.admin-page) .article-card {
+    margin-bottom: 15px;
+    padding: 24px 26px;
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: var(--surface);
+    box-shadow: 0 5px 18px rgba(25, 43, 67, 0.045);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+body:not(.admin-page) .article-card:hover {
+    transform: translateY(-2px);
+    border-color: #cbd7e6;
+    box-shadow: 0 12px 26px rgba(25, 43, 67, 0.08);
+}
+
+body:not(.admin-page) .article-card h3 {
+    margin-bottom: 9px;
+    font-size: 18px;
+    line-height: 1.45;
+}
+
+body:not(.admin-page) .article-card h3 a {
+    color: #1d3554;
+}
+
+body:not(.admin-page) .article-card h3 a:hover {
+    color: #38699a;
+}
+
+body:not(.admin-page) .article-category {
+    display: inline-block;
+    margin: 0 0 8px;
+    padding: 4px 10px;
+    border: 1px solid #dce6f1;
+    border-radius: 999px;
+    background: #f0f5fa;
+    color: #365777;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.35px;
+}
+
+body:not(.admin-page) .article-card p:last-child,
+body:not(.admin-page) .article-date {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+body:not(.admin-page) .full-article {
+    max-width: 850px;
+    margin: 0 auto;
+    padding: 48px clamp(24px, 6vw, 62px);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: var(--surface);
+    box-shadow: 0 12px 35px rgba(25, 43, 67, 0.06);
+}
+
+body:not(.admin-page) .full-article > a {
+    color: #365f89;
+    font-size: 14px;
+    font-weight: 650;
+    text-decoration: none;
+}
+
+body:not(.admin-page) .full-article > a:hover {
+    text-decoration: underline;
+}
+
+body:not(.admin-page) .full-article > h1 {
+    margin-top: 25px;
+    color: #1a2f4a;
+    font-size: clamp(29px, 4vw, 40px);
+    line-height: 1.2;
+    letter-spacing: -0.7px;
+}
+
+body:not(.admin-page) .article-content {
+    color: #35445a;
+    font-size: 16px;
+    line-height: 1.85;
+}
+
+body:not(.admin-page) .article-content h1,
+body:not(.admin-page) .article-content h2,
+body:not(.admin-page) .article-content h3 {
+    color: #1c3554;
+    line-height: 1.35;
+}
+
+body:not(.admin-page) .article-content h2 {
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+}
+
+body:not(.admin-page) .article-content ul,
+body:not(.admin-page) .article-content ol {
+    margin: 0 0 20px 24px;
+}
+
+body:not(.admin-page) .article-content li {
+    margin-bottom: 8px;
+    padding-left: 4px;
+}
+
+body:not(.admin-page) .article-content blockquote {
+    margin: 22px 0;
+    padding: 14px 20px;
+    border-left: 3px solid var(--accent);
+    background: #f7f8fa;
+    color: #526176;
+}
+
+body:not(.admin-page) footer {
+    margin-top: 0;
+    padding: 25px 20px;
+    border-top: 1px solid #e4e9f0;
+    background: #edf1f6;
+    color: #758196;
+    font-size: 13px;
+}
+
+@media (max-width: 700px) {
+    body:not(.admin-page) main {
+        padding: 30px 16px 48px;
+    }
+
+    body:not(.admin-page) .welcome {
+        padding: 52px 24px;
+        border-radius: 15px;
+    }
+
+    body:not(.admin-page) .welcome::after {
+        right: -190px;
+    }
+
+    body:not(.admin-page) .articles {
+        margin-top: 34px;
+    }
+
+    body:not(.admin-page) .article-card {
+        padding: 20px;
+    }
+
+    body:not(.admin-page) .full-article {
+        padding: 30px 22px;
+        border-radius: 14px;
+    }
+}
