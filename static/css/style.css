@@ -685,3 +685,201 @@ body:not(.admin-page) footer {
         border-radius: 14px;
     }
 }
+
+
+/* Homepage search, category filters, and article grid */
+body:not(.admin-page) .welcome-label {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 12px;
+    color: #d6e2ef;
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: 2px;
+}
+
+body:not(.admin-page) .articles-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+body:not(.admin-page) .articles-heading h2 {
+    margin-bottom: 3px;
+}
+
+body:not(.admin-page) .articles-count,
+body:not(.admin-page) .results-label {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+body:not(.admin-page) .article-tools {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: 0 5px 18px rgba(25, 43, 67, 0.035);
+}
+
+body:not(.admin-page) .search-box {
+    flex: 1;
+    min-width: 180px;
+}
+
+body:not(.admin-page) .search-box input,
+body:not(.admin-page) .category-select select {
+    width: 100%;
+    min-height: 43px;
+    padding: 0 13px;
+    border: 1px solid #dce3ec;
+    border-radius: 8px;
+    background: #fff;
+    color: var(--ink);
+    font: inherit;
+    font-size: 14px;
+}
+
+body:not(.admin-page) .search-box input:focus,
+body:not(.admin-page) .category-select select:focus {
+    outline: 3px solid rgba(49, 87, 213, 0.13);
+    border-color: #7895bb;
+}
+
+body:not(.admin-page) .category-select {
+    width: 190px;
+}
+
+body:not(.admin-page) .search-button {
+    min-height: 43px;
+    padding: 0 19px;
+    border: 0;
+    border-radius: 8px;
+    background: #294b78;
+    color: #fff;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+body:not(.admin-page) .search-button:hover {
+    background: #1b3658;
+}
+
+body:not(.admin-page) .clear-filters {
+    color: #52657d;
+    font-size: 13px;
+    font-weight: 650;
+    text-decoration: none;
+}
+
+body:not(.admin-page) .clear-filters:hover {
+    text-decoration: underline;
+}
+
+body:not(.admin-page) .results-label {
+    margin: 0 0 16px;
+}
+
+body:not(.admin-page) .article-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 17px;
+}
+
+body:not(.admin-page) .article-grid .article-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-height: 205px;
+    margin: 0;
+}
+
+body:not(.admin-page) .article-grid .article-card h3 {
+    margin-bottom: 13px;
+}
+
+body:not(.admin-page) .article-card-date {
+    margin-top: auto;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+body:not(.admin-page) .read-article-link {
+    display: inline-block;
+    margin-top: 13px;
+    color: #315d8d;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+body:not(.admin-page) .read-article-link:hover {
+    text-decoration: underline;
+}
+
+body:not(.admin-page) .no-articles {
+    padding: 48px 24px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 13px;
+    background: rgba(255, 255, 255, 0.75);
+    text-align: center;
+}
+
+body:not(.admin-page) .no-articles h3 {
+    margin-bottom: 7px;
+    color: var(--ink);
+}
+
+body:not(.admin-page) .no-articles p {
+    margin-bottom: 14px;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+body:not(.admin-page) .no-articles a {
+    color: #315d8d;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+@media (max-width: 700px) {
+    body:not(.admin-page) .article-tools {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    body:not(.admin-page) .search-box,
+    body:not(.admin-page) .category-select {
+        width: 100%;
+    }
+
+    body:not(.admin-page) .article-grid {
+        grid-template-columns: 1fr;
+    }
+
+    body:not(.admin-page) .search-button {
+        width: 100%;
+    }
+}
