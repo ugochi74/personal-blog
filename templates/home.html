@@ -6,30 +6,83 @@
 {% block content %}
 
 <section class="welcome">
+    <p class="welcome-label">THOUGHTS, LESSONS & IDEAS</p>
     <h1>Welcome to My Personal Blog</h1>
     <p>Ideas and lessons on Christian growth, software engineering, and personal development.</p>
 </section>
 
 <section class="articles">
-    <h2>Latest Articles</h2>
+    <div class="articles-heading">
+        <div>
+            <h2>Explore Articles</h2>
+            <p class="articles-count">{{ total_articles }} published articles</p>
+        </div>
+    </div>
 
-    {% if articles %}
-        {% for article in articles %}
-            <article class="article-card">
-                <h3>
-                    <a href="{{ url_for('article', slug=article.slug) }}">
-                        {{ article.title }}
-                    </a>
-                </h3>
+    <form class="article-tools" method="GET" action="{{ url_for('home') }}">
+        <label class="search-box">
+            <span class="visually-hidden">Search articles</span>
+            <input
+                type="search"
+                name="q"
+                value="{{ search_query }}"
+                placeholder="Search articles by title or topic..."
+            >
+        </label>
 
-                <p class="article-category">{{ article.category }}</p>
-                <p>Published: {{ article.date }}</p>
-            </article>
-        {% endfor %}
-    {% else %}
-        <p>No articles have been published yet.</p>
+        <label class="category-select">
+            <span class="visually-hidden">Filter by category</span>
+            <select name="category">
+                <option value="">All categories</option>
+                {% for category in categories %}
+                    <option value="{{ category }}" {% if selected_category == category %}selected{% endif %}>
+                        {{ category }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <button class="search-button" type="submit">Search</button>
+        {% if search_query or selected_category %}
+            <a class="clear-filters" href="{{ url_for('home') }}">Clear</a>
+        {% endif %}
+    </form>
+
+    {% if selected_category %}
+        <p class="results-label">Showing articles in <strong>{{ selected_category }}</strong></p>
+    {% elif search_query %}
+        <p class="results-label">Search results for <strong>{{ search_query }}</strong></p>
     {% endif %}
 
+    {% if articles %}
+        <div class="article-grid">
+            {% for article in articles %}
+                <article class="article-card">
+                    <p class="article-category">{{ article.category }}</p>
+                    <h3>
+                        <a href="{{ url_for('article', slug=article.slug) }}">
+                            {{ article.title }}
+                        </a>
+                    </h3>
+                    <p class="article-card-date">Published {{ article.date }}</p>
+                    <a class="read-article-link" href="{{ url_for('article', slug=article.slug) }}">
+                        Read article <span aria-hidden="true">→</span>
+                    </a>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-articles">
+            {% if search_query or selected_category %}
+                <h3>No matching articles found</h3>
+                <p>Try another search term or choose a different category.</p>
+                <a href="{{ url_for('home') }}">View all articles</a>
+            {% else %}
+                <h3>No articles published yet</h3>
+                <p>New articles will appear here when they are published.</p>
+            {% endif %}
+        </div>
+    {% endif %}
 </section>
 
 {% endblock %}
