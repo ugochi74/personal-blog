@@ -17,6 +17,7 @@ from flask import (
 )
 
 from werkzeug.security import check_password_hash
+from werkzeug.utils import secure_filename
 
 
 app = Flask(__name__)
@@ -155,6 +156,47 @@ def dashboard():
         "admin/dashboard.html",
         articles=articles
     )
+
+
+# Add a new article
+@app.route("/admin/articles/add", methods=["GET", "POST"])
+@login_required
+def add_article():
+    if request.method == "POST":
+        title = request.form.get("title", "").strip()
+        date = request.form.get("date", "").strip()
+        content = request.form.get("content", "").strip()
+        published = request.form.get("published") == "on"
+
+        if not title or not date or not content:
+            flash("Please fill in all required fields.")
+            return render_template("admin/add_article.html")
+
+        slug = secure_filename(title.lower().replace(" ", "-"))
+
+        if not slug:
+            flash("Please enter a valid article title.")
+            return render_template("admin/add_article.html")
+
+        article_file = ARTICLES_DIR / f"{slug}.md"
+
+        if article_file.exists():
+            flash("An article with this title already exists.")
+            return render_template("admin/add_article.html")
+
+        post = frontmatter.Post(
+            content,
+            title=title,
+            date=date,
+            published=published
+        )
+
+        frontmatter.dump(post, str(article_file))
+
+        flash("Article created successfully!")
+        return redirect(url_for("dashboard"))
+
+    return render_template("admin/add_article.html")
 
 
 # Admin logout
