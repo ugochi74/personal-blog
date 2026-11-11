@@ -1,0 +1,22 @@
+
+{% extends "base.html" %}
+
+{% block title %}{{ title }} | My Personal Blog{% endblock %}
+
+{% block content %}
+
+<article class="full-article">
+
+    <a href="{{ url_for('home') }}">← Back to Home</a>
+
+    <h1>{{ title }}</h1>
+
+    <p class="article-date">Published: {{ date }}</p>
+
+    <div class="article-content">
+        {{ content | safe }}
+    </div>
+
+</article>
+
+{% endblock %}

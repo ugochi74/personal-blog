@@ -1,0 +1,30 @@
+
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard | My Personal Blog{% endblock %}
+
+{% block content %}
+
+<section class="dashboard">
+    <h1>Admin Dashboard</h1>
+
+    <p>Welcome to your blog management dashboard.</p>
+
+    <a href="{{ url_for('logout') }}">Logout</a>
+
+    <h2>Your Articles</h2>
+
+    {% if articles %}
+        {% for article in articles %}
+            <article class="article-card">
+                <h3>{{ article.title }}</h3>
+                <p>Published: {{ article.date }}</p>
+            </article>
+        {% endfor %}
+    {% else %}
+        <p>You have no articles yet.</p>
+    {% endif %}
+
+</section>
+
+{% endblock %}

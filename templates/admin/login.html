@@ -1,0 +1,32 @@
+
+{% extends "base.html" %}
+
+{% block title %}Admin Login | My Personal Blog{% endblock %}
+
+{% block content %}
+
+<section class="login-section">
+    <h1>Admin Login</h1>
+
+    {% with messages = get_flashed_messages() %}
+        {% for message in messages %}
+            <p class="error-message">{{ message }}</p>
+        {% endfor %}
+    {% endwith %}
+
+    <form method="POST">
+        <div>
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+
+        <div>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+
+        <button type="submit">Login</button>
+    </form>
+</section>
+
+{% endblock %}
