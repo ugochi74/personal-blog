@@ -2,30 +2,61 @@
 {% extends "base.html" %}
 
 {% block title %}Admin Dashboard | My Personal Blog{% endblock %}
+{% block body_class %}admin-page{% endblock %}
 
 {% block content %}
 
 <section class="dashboard">
-    <h1>Admin Dashboard</h1>
+    <div class="dashboard-heading">
+        <div>
+            <p class="dashboard-eyebrow">BLOG MANAGEMENT</p>
+            <h1>Dashboard</h1>
+            <p class="dashboard-subtitle">Manage your stories and keep your blog up to date.</p>
+        </div>
 
-    <p>Welcome to your blog management dashboard.</p>
+        <div class="dashboard-actions">
+            <a class="button button-primary" href="{{ url_for('add_article') }}">＋ New Article</a>
+            <a class="button button-quiet" href="{{ url_for('logout') }}">Log out</a>
+        </div>
+    </div>
 
-    <a href="{{ url_for('add_article') }}">Add New Article</a>
-    <a href="{{ url_for('logout') }}">Logout</a>
+    <div class="dashboard-summary">
+        <div class="summary-card">
+            <span class="summary-label">Published articles</span>
+            <strong>{{ articles|length }}</strong>
+            <span class="summary-note">Visible on your blog</span>
+        </div>
+    </div>
 
-    <h2>Your Articles</h2>
+    <div class="dashboard-section-heading">
+        <div>
+            <h2>Your articles</h2>
+            <p>Review the articles currently published on your website.</p>
+        </div>
+    </div>
 
-    {% if articles %}
-        {% for article in articles %}
-            <article class="article-card">
-                <h3>{{ article.title }}</h3>
-                <p>Published: {{ article.date }}</p>
-            </article>
-        {% endfor %}
-    {% else %}
-        <p>You have no articles yet.</p>
-    {% endif %}
-
+    <div class="dashboard-article-list">
+        {% if articles %}
+            {% for article in articles %}
+                <article class="dashboard-article">
+                    <div class="article-initial">{{ article.title[:1]|upper }}</div>
+                    <div class="dashboard-article-info">
+                        <h3>{{ article.title }}</h3>
+                        <p>Published {{ article.date }}</p>
+                    </div>
+                    <span class="article-status">Published</span>
+                    <a class="article-view-link" href="{{ url_for('article', slug=article.slug) }}" target="_blank">View article ↗</a>
+                </article>
+            {% endfor %}
+        {% else %}
+            <div class="dashboard-empty">
+                <div class="empty-icon">✎</div>
+                <h3>Your blog is waiting for its first story</h3>
+                <p>Create an article to start building your blog.</p>
+                <a class="button button-primary" href="{{ url_for('add_article') }}">Create your first article</a>
+            </div>
+        {% endif %}
+    </div>
 </section>
 
 {% endblock %}
