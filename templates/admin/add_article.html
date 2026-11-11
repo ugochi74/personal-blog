@@ -1,0 +1,63 @@
+
+{% extends "base.html" %}
+
+{% block title %}Add Article | My Personal Blog{% endblock %}
+
+{% block content %}
+
+<section class="add-article">
+    <h1>Create New Article</h1>
+
+    {% with messages = get_flashed_messages() %}
+        {% for message in messages %}
+            <p class="error-message">{{ message }}</p>
+        {% endfor %}
+    {% endwith %}
+
+    <form method="POST">
+        <div>
+            <label for="title">Article Title</label>
+            <input
+                type="text"
+                id="title"
+                name="title"
+                required
+            >
+        </div>
+
+        <div>
+            <label for="date">Publication Date</label>
+            <input
+                type="date"
+                id="date"
+                name="date"
+                required
+            >
+        </div>
+
+        <div>
+            <label for="content">Article Content</label>
+            <textarea
+                id="content"
+                name="content"
+                rows="12"
+                required
+            ></textarea>
+        </div>
+
+        <div>
+            <label>
+                <input
+                    type="checkbox"
+                    name="published"
+                    checked
+                >
+                Publish immediately
+            </label>
+        </div>
+
+        <button type="submit">Save Article</button>
+    </form>
+</section>
+
+{% endblock %}
