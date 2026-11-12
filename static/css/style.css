@@ -1429,3 +1429,68 @@ body:not(.admin-page) .no-articles a {
     color: #246b43;
     font-size: 13px;
 }
+
+
+/* Downloadable article PDF action */
+.article-meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 18px;
+    margin: 14px 0 25px;
+    padding: 14px 16px;
+    border: 1px solid #e3eaf2;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.82);
+}
+
+.article-meta-details {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 14px;
+}
+
+.article-meta-details .article-category,
+.article-meta-details .article-date {
+    margin: 0;
+}
+
+.download-pdf-button {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 10px 15px;
+    border: 1px solid #244a76;
+    border-radius: 8px;
+    background: #244a76;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.download-pdf-button:hover {
+    transform: translateY(-1px);
+    background: #193858;
+}
+
+.download-pdf-button:focus-visible {
+    outline: 3px solid rgba(49, 87, 213, 0.25);
+    outline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+    .article-meta-row {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .download-pdf-button {
+        width: 100%;
+    }
+}
