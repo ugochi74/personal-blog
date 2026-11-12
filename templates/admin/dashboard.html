@@ -17,6 +17,12 @@
         </div>
     </div>
 
+    {% with messages = get_flashed_messages() %}
+        {% for message in messages %}
+            <p class="dashboard-notice" role="status">{{ message }}</p>
+        {% endfor %}
+    {% endwith %}
+
     <div class="dashboard-summary">
         <div class="summary-card">
             <span class="summary-label">Total articles</span>
