@@ -157,7 +157,8 @@ def article(slug):
         title=post.metadata.get("title", "Untitled"),
         date=post.metadata.get("date", ""),
         category=post.metadata.get("category", "General"),
-        content=content
+        content=content,
+        slug=slug
     )
 
 
