@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Article | My Personal Blog{% endblock %}
+{% block body_class %}admin-page{% endblock %}
+
+{% block content %}
+<section class="admin-form-page">
+    <div class="form-page-heading">
+        <div>
+            <p class="dashboard-eyebrow">CONTENT MANAGEMENT</p>
+            <h1>Edit article</h1>
+            <p>Make changes to your article and save them when you're ready.</p>
+        </div>
+        <a class="button button-quiet" href="{{ url_for('dashboard') }}">← Back to dashboard</a>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+        {% for message in messages %}
+            <p class="form-alert" role="alert">{{ message }}</p>
+        {% endfor %}
+    {% endwith %}
+
+    <form method="POST" class="article-editor-form">
+        <div class="editor-field">
+            <label for="title">Article title</label>
+            <input type="text" id="title" name="title" value="{{ article.title }}" required>
+        </div>
+        <div class="editor-two-columns">
+            <div class="editor-field">
+                <label for="date">Publication date</label>
+                <input type="date" id="date" name="date" value="{{ article.date }}" required>
+            </div>
+            <div class="editor-field">
+                <label for="category">Category</label>
+                <input type="text" id="category" name="category" value="{{ article.category }}" placeholder="e.g. Faith, Engineering">
+            </div>
+        </div>
+        <div class="editor-field">
+            <label for="content">Article content</label>
+            <textarea id="content" name="content" rows="18" required>{{ article.content }}</textarea>
+            <p class="editor-help">You can use Markdown headings, lists, links, and emphasis in your article.</p>
+        </div>
+        <label class="publish-option">
+            <input type="checkbox" name="published" {% if article.published %}checked{% endif %}>
+            <span>
+                <strong>Publish this article</strong>
+                <small>When unchecked, the article is saved as a private draft.</small>
+            </span>
+        </label>
+        <div class="editor-actions">
+            <button class="button button-primary" type="submit">Save changes</button>
+            <a class="button button-quiet" href="{{ url_for('dashboard') }}">Cancel</a>
+        </div>
+    </form>
+</section>
+{% endblock %}
