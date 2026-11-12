@@ -1,19 +1,16 @@
-
 {% extends "base.html" %}
 
 {% block title %}Admin Dashboard | My Personal Blog{% endblock %}
 {% block body_class %}admin-page{% endblock %}
 
 {% block content %}
-
 <section class="dashboard">
     <div class="dashboard-heading">
         <div>
             <p class="dashboard-eyebrow">BLOG MANAGEMENT</p>
             <h1>Dashboard</h1>
-            <p class="dashboard-subtitle">Manage your stories and keep your blog up to date.</p>
+            <p class="dashboard-subtitle">Manage your stories, drafts, and published articles.</p>
         </div>
-
         <div class="dashboard-actions">
             <a class="button button-primary" href="{{ url_for('add_article') }}">＋ New Article</a>
             <a class="button button-quiet" href="{{ url_for('logout') }}">Log out</a>
@@ -22,17 +19,28 @@
 
     <div class="dashboard-summary">
         <div class="summary-card">
-            <span class="summary-label">Published articles</span>
-            <strong>{{ articles|length }}</strong>
-            <span class="summary-note">Visible on your blog</span>
+            <span class="summary-label">Total articles</span>
+            <strong>{{ total_count }}</strong>
+            <span class="summary-note">All content in your library</span>
+        </div>
+        <div class="summary-card">
+            <span class="summary-label">Published</span>
+            <strong>{{ published_count }}</strong>
+            <span class="summary-note">Visible to your readers</span>
+        </div>
+        <div class="summary-card">
+            <span class="summary-label">Drafts</span>
+            <strong>{{ draft_count }}</strong>
+            <span class="summary-note">Only visible to you</span>
         </div>
     </div>
 
     <div class="dashboard-section-heading">
         <div>
-            <h2>Your articles</h2>
-            <p>Review the articles currently published on your website.</p>
+            <h2>Your content</h2>
+            <p>Edit, publish, or remove articles from your blog.</p>
         </div>
+        <span class="dashboard-total">{{ total_count }} item{% if total_count != 1 %}s{% endif %}</span>
     </div>
 
     <div class="dashboard-article-list">
@@ -42,10 +50,22 @@
                     <div class="article-initial">{{ article.title[:1]|upper }}</div>
                     <div class="dashboard-article-info">
                         <h3>{{ article.title }}</h3>
-                        <p>Published {{ article.date }}</p>
+                        <p>{{ article.category }} <span class="meta-separator">·</span> {{ article.date }}</p>
                     </div>
-                    <span class="article-status">Published</span>
-                    <a class="article-view-link" href="{{ url_for('article', slug=article.slug) }}" target="_blank">View article ↗</a>
+                    {% if article.published %}
+                        <span class="article-status status-published">Published</span>
+                    {% else %}
+                        <span class="article-status status-draft">Draft</span>
+                    {% endif %}
+                    <div class="article-actions">
+                        {% if article.published %}
+                            <a class="article-action-link" href="{{ url_for('article', slug=article.slug) }}" target="_blank" rel="noopener">View</a>
+                        {% endif %}
+                        <a class="article-action-link" href="{{ url_for('edit_article', slug=article.slug) }}">Edit</a>
+                        <form method="POST" action="{{ url_for('delete_article', slug=article.slug) }}" onsubmit="return confirm('Are you sure you want to permanently delete this article?');">
+                            <button class="article-delete-button" type="submit">Delete</button>
+                        </form>
+                    </div>
                 </article>
             {% endfor %}
         {% else %}
@@ -58,5 +78,4 @@
         {% endif %}
     </div>
 </section>
-
 {% endblock %}
