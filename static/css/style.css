@@ -1418,3 +1418,14 @@ body:not(.admin-page) .no-articles a {
         width: 100%;
     }
 }
+
+
+.admin-page .dashboard-notice {
+    margin-bottom: 20px;
+    padding: 12px 15px;
+    border: 1px solid #cce8d8;
+    border-radius: 9px;
+    background: #effaf3;
+    color: #246b43;
+    font-size: 13px;
+}
