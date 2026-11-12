@@ -180,9 +180,8 @@ def article(slug):
         slug=slug,
         book_url=post.metadata.get("book_url", ""),
         book_pdf=(
-            f"book_pdfs/{post.metadata.get('book_pdf')}"
-            if post.metadata.get("book_pdf")
-            and (BOOK_PDF_DIR / post.metadata.get("book_pdf")).is_file()
+            f"book_pdfs/{slug}.pdf"
+            if (BOOK_PDF_DIR / f"{slug}.pdf").is_file()
             else ""
         )
     )
