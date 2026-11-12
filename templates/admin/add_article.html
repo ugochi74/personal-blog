@@ -20,7 +20,7 @@
         {% endfor %}
     {% endwith %}
 
-    <form method="POST" class="article-editor-form">
+    <form method="POST" enctype="multipart/form-data" class="article-editor-form">
         <div class="editor-field">
             <label for="title">Article title</label>
             <input type="text" id="title" name="title" placeholder="Give your article a clear title" required>
@@ -33,6 +33,19 @@
             <div class="editor-field">
                 <label for="category">Category</label>
                 <input type="text" id="category" name="category" placeholder="e.g. Faith, Engineering">
+            </div>
+        </div>
+        <div class="book-access-fields">
+            <h2>Complete book access (optional)</h2>
+            <p class="editor-help">Add an official book page or upload a PDF you own or are authorized to distribute.</p>
+            <div class="editor-field">
+                <label for="book_url">Official book link</label>
+                <input type="url" id="book_url" name="book_url" placeholder="https://publisher-or-bookstore.com/book">
+            </div>
+            <div class="editor-field">
+                <label for="book_pdf">Authorized complete book PDF</label>
+                <input type="file" id="book_pdf" name="book_pdf" accept=".pdf,application/pdf">
+                <p class="editor-help">PDF only. Maximum file size: 25 MB.</p>
             </div>
         </div>
         <div class="editor-field">
