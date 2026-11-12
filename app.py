@@ -1,6 +1,7 @@
 
 from pathlib import Path
 from functools import wraps
+from urllib.parse import urlparse
 
 import frontmatter
 import markdown
@@ -31,6 +32,9 @@ app.config.from_object("config.Config")
 
 # Locate the articles directory
 ARTICLES_DIR = Path(__file__).parent / "articles"
+BOOK_PDF_DIR = Path(__file__).parent / "static" / "book_pdfs"
+BOOK_PDF_DIR.mkdir(parents=True, exist_ok=True)
+app.config["MAX_CONTENT_LENGTH"] = 25 * 1024 * 1024
 
 
 # Check required environment configuration
@@ -76,6 +80,21 @@ def get_articles():
         article for article in get_all_articles()
         if article["published"]
     ]
+
+
+def is_valid_book_url(value):
+    if not value:
+        return True
+    parsed_url = urlparse(value)
+    return parsed_url.scheme in {"http", "https"} and bool(parsed_url.netloc)
+
+
+def valid_book_pdf(upload):
+    if not upload or not upload.filename or not upload.filename.lower().endswith(".pdf"):
+        return False
+    file_header = upload.stream.read(5)
+    upload.stream.seek(0)
+    return file_header == b"%PDF-"
 
 
 # Protect admin routes
@@ -241,6 +260,8 @@ def add_article():
         content = request.form.get("content", "").strip()
         category = request.form.get("category", "").strip() or "General"
         published = request.form.get("published") == "on"
+        book_url = request.form.get("book_url", "").strip()
+        book_pdf = request.files.get("book_pdf")
 
         if not title or not date or not content:
             flash("Please fill in all required fields.")
@@ -258,15 +279,28 @@ def add_article():
             flash("An article with this title already exists.")
             return render_template("admin/add_article.html")
 
+        if not is_valid_book_url(book_url):
+            flash("Please enter a valid official book URL beginning with http:// or https://.")
+            return render_template("admin/add_article.html")
+
+        if book_pdf and book_pdf.filename and not valid_book_pdf(book_pdf):
+            flash("Please upload a valid PDF file.")
+            return render_template("admin/add_article.html")
+
         post = frontmatter.Post(
             content,
             title=title,
             date=date,
             category=category,
-            published=published
+            published=published,
+            book_url=book_url,
+            book_pdf=f"{slug}.pdf" if book_pdf and book_pdf.filename else ""
         )
 
         frontmatter.dump(post, str(article_file))
+
+        if book_pdf and book_pdf.filename:
+            book_pdf.save(BOOK_PDF_DIR / f"{slug}.pdf")
 
         flash("Article created successfully!")
         return redirect(url_for("dashboard"))
@@ -291,6 +325,8 @@ def edit_article(slug):
         category = request.form.get("category", "").strip() or "General"
         content = request.form.get("content", "").strip()
         published = request.form.get("published") == "on"
+        book_url = request.form.get("book_url", "").strip()
+        book_pdf = request.files.get("book_pdf")
 
         if not title or not date or not content:
             flash("Please fill in all required fields.")
@@ -302,15 +338,31 @@ def edit_article(slug):
                     "date": date,
                     "category": category,
                     "content": content,
-                    "published": published
+                    "published": published,
+                    "book_url": book_url,
+                    "book_pdf": post.metadata.get("book_pdf", "")
                 }
             )
+
+        if not is_valid_book_url(book_url):
+            flash("Please enter a valid official book URL beginning with http:// or https://.")
+            return redirect(url_for("edit_article", slug=slug))
+
+        if book_pdf and book_pdf.filename and not valid_book_pdf(book_pdf):
+            flash("Please upload a valid PDF file.")
+            return redirect(url_for("edit_article", slug=slug))
 
         post.metadata["title"] = title
         post.metadata["date"] = date
         post.metadata["category"] = category
         post.metadata["published"] = published
+        post.metadata["book_url"] = book_url
         post.content = content
+
+        if book_pdf and book_pdf.filename:
+            book_pdf.save(BOOK_PDF_DIR / f"{slug}.pdf")
+            post.metadata["book_pdf"] = f"{slug}.pdf"
+
         frontmatter.dump(post, str(article_file))
 
         flash("Article updated successfully.")
@@ -323,6 +375,8 @@ def edit_article(slug):
         "category": post.metadata.get("category", "General"),
         "content": post.content,
         "published": post.metadata.get("published", True),
+        "book_url": post.metadata.get("book_url", ""),
+        "book_pdf": post.metadata.get("book_pdf", ""),
     }
 
     return render_template("admin/edit_article.html", article=article)
@@ -338,6 +392,11 @@ def delete_article(slug):
         abort(404)
 
     article_file.unlink()
+
+    book_pdf = BOOK_PDF_DIR / f"{slug}.pdf"
+    if book_pdf.is_file():
+        book_pdf.unlink()
+
     flash("Article deleted successfully.")
     return redirect(url_for("dashboard"))
 
