@@ -13,11 +13,14 @@ from flask import (
     redirect,
     url_for,
     session,
-    flash
+    flash,
+    send_file
 )
 
 from werkzeug.security import check_password_hash
 from werkzeug.utils import secure_filename
+
+from pdf_generator import create_article_pdf
 
 
 app = Flask(__name__)
@@ -155,6 +158,34 @@ def article(slug):
         date=post.metadata.get("date", ""),
         category=post.metadata.get("category", "General"),
         content=content
+    )
+
+
+# Download a PDF copy of a published article
+@app.route("/article/<slug>/pdf")
+def download_article_pdf(slug):
+    article_file = ARTICLES_DIR / f"{slug}.md"
+
+    if not article_file.is_file():
+        abort(404)
+
+    post = frontmatter.load(article_file)
+
+    if not post.metadata.get("published", True):
+        abort(404)
+
+    pdf_file = create_article_pdf(
+        title=post.metadata.get("title", "Untitled"),
+        date=str(post.metadata.get("date", "")),
+        category=post.metadata.get("category", "General"),
+        content=post.content
+    )
+
+    return send_file(
+        pdf_file,
+        mimetype="application/pdf",
+        as_attachment=True,
+        download_name=f"{slug}.pdf"
     )
 
 
