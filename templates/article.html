@@ -21,6 +21,28 @@
         </a>
     </div>
 
+    {% if book_pdf or book_url %}
+        <section class="complete-book-access" aria-labelledby="complete-book-heading">
+            <div>
+                <p class="book-access-label">COMPLETE BOOK</p>
+                <h2 id="complete-book-heading">Access the full book</h2>
+                <p>Use an authorized download or visit the official book page.</p>
+            </div>
+            <div class="book-access-actions">
+                {% if book_pdf %}
+                    <a class="book-download-button" href="{{ url_for('static', filename=book_pdf) }}" download>
+                        Download complete book PDF
+                    </a>
+                {% endif %}
+                {% if book_url %}
+                    <a class="book-official-link" href="{{ book_url }}" target="_blank" rel="noopener noreferrer">
+                        Read or buy from official source
+                    </a>
+                {% endif %}
+            </div>
+        </section>
+    {% endif %}
+
     <div class="article-content">
         {{ content | safe }}
     </div>
