@@ -177,7 +177,14 @@ def article(slug):
         date=post.metadata.get("date", ""),
         category=post.metadata.get("category", "General"),
         content=content,
-        slug=slug
+        slug=slug,
+        book_url=post.metadata.get("book_url", ""),
+        book_pdf=(
+            f"book_pdfs/{post.metadata.get('book_pdf')}"
+            if post.metadata.get("book_pdf")
+            and (BOOK_PDF_DIR / post.metadata.get("book_pdf")).is_file()
+            else ""
+        )
     )
 
 
