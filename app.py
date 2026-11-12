@@ -41,15 +41,12 @@ if not app.config["ADMIN_PASSWORD_HASH"]:
     raise RuntimeError("ADMIN_PASSWORD_HASH is missing from .env")
 
 
-# Get all published articles
-def get_articles():
+# Get every article for the admin dashboard, including drafts
+def get_all_articles():
     articles = []
 
     for article_file in ARTICLES_DIR.glob("*.md"):
         post = frontmatter.load(article_file)
-
-        if not post.metadata.get("published", True):
-            continue
 
         article = {
             "slug": article_file.stem,
@@ -57,6 +54,7 @@ def get_articles():
             "date": str(post.metadata.get("date", "")),
             "category": post.metadata.get("category", "General"),
             "content": post.content,
+            "published": post.metadata.get("published", True),
         }
 
         articles.append(article)
@@ -67,6 +65,14 @@ def get_articles():
     )
 
     return articles
+
+
+# Public pages should only show published articles
+def get_articles():
+    return [
+        article for article in get_all_articles()
+        if article["published"]
+    ]
 
 
 # Protect admin routes
@@ -180,11 +186,16 @@ def login():
 @app.route("/admin/dashboard")
 @login_required
 def dashboard():
-    articles = get_articles()
+    articles = get_all_articles()
+    published_count = sum(article["published"] for article in articles)
+    draft_count = len(articles) - published_count
 
     return render_template(
         "admin/dashboard.html",
-        articles=articles
+        articles=articles,
+        published_count=published_count,
+        draft_count=draft_count,
+        total_count=len(articles)
     )
 
 
@@ -196,6 +207,7 @@ def add_article():
         title = request.form.get("title", "").strip()
         date = request.form.get("date", "").strip()
         content = request.form.get("content", "").strip()
+        category = request.form.get("category", "").strip() or "General"
         published = request.form.get("published") == "on"
 
         if not title or not date or not content:
@@ -218,6 +230,7 @@ def add_article():
             content,
             title=title,
             date=date,
+            category=category,
             published=published
         )
 
@@ -227,6 +240,74 @@ def add_article():
         return redirect(url_for("dashboard"))
 
     return render_template("admin/add_article.html")
+
+
+# Edit an existing article
+@app.route("/admin/articles/<slug>/edit", methods=["GET", "POST"])
+@login_required
+def edit_article(slug):
+    article_file = ARTICLES_DIR / f"{slug}.md"
+
+    if not article_file.is_file():
+        abort(404)
+
+    post = frontmatter.load(article_file)
+
+    if request.method == "POST":
+        title = request.form.get("title", "").strip()
+        date = request.form.get("date", "").strip()
+        category = request.form.get("category", "").strip() or "General"
+        content = request.form.get("content", "").strip()
+        published = request.form.get("published") == "on"
+
+        if not title or not date or not content:
+            flash("Please fill in all required fields.")
+            return render_template(
+                "admin/edit_article.html",
+                article={
+                    "slug": slug,
+                    "title": title,
+                    "date": date,
+                    "category": category,
+                    "content": content,
+                    "published": published
+                }
+            )
+
+        post.metadata["title"] = title
+        post.metadata["date"] = date
+        post.metadata["category"] = category
+        post.metadata["published"] = published
+        post.content = content
+        frontmatter.dump(post, str(article_file))
+
+        flash("Article updated successfully.")
+        return redirect(url_for("dashboard"))
+
+    article = {
+        "slug": slug,
+        "title": post.metadata.get("title", "Untitled"),
+        "date": str(post.metadata.get("date", "")),
+        "category": post.metadata.get("category", "General"),
+        "content": post.content,
+        "published": post.metadata.get("published", True),
+    }
+
+    return render_template("admin/edit_article.html", article=article)
+
+
+# Delete an article using POST so a normal page visit cannot delete it
+@app.route("/admin/articles/<slug>/delete", methods=["POST"])
+@login_required
+def delete_article(slug):
+    article_file = ARTICLES_DIR / f"{slug}.md"
+
+    if not article_file.is_file():
+        abort(404)
+
+    article_file.unlink()
+    flash("Article deleted successfully.")
+    return redirect(url_for("dashboard"))
 
 
 # Admin logout
