@@ -11,8 +11,15 @@
 
     <h1>{{ title }}</h1>
 
-    <p class="article-category">{{ category }}</p>
-    <p class="article-date">Published: {{ date }}</p>
+    <div class="article-meta-row">
+        <div class="article-meta-details">
+            <p class="article-category">{{ category }}</p>
+            <p class="article-date">Published: {{ date }}</p>
+        </div>
+        <a class="download-pdf-button" href="{{ url_for('download_article_pdf', slug=slug) }}">
+            <span aria-hidden="true">↓</span> Download PDF
+        </a>
+    </div>
 
     <div class="article-content">
         {{ content | safe }}
