@@ -1,8 +1,9 @@
 ---
-title: "Small Changes, Big Results: Lessons from Atomic Habits"
-date: "2026-11-03"
+book_url: https://jamesclear.com/atomic-habits?utm_source=chatgpt.com
+category: Motivation
+date: '2026-11-03'
 published: true
-category: "Motivation"
+title: 'Small Changes, Big Results: Lessons from Atomic Habits'
 ---
 
 # Small Changes, Big Results: Lessons from Atomic Habits

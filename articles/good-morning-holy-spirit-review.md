@@ -1,8 +1,10 @@
 ---
-title: "Good Morning, Holy Spirit: A Reflection on Knowing God"
-date: "2026-11-11"
+book_pdf: good-morning-holy-spirit-review.pdf
+book_url: ''
+category: Christian Growth
+date: '2026-11-11'
 published: true
-category: "Christian Growth"
+title: 'Good Morning, Holy Spirit: A Reflection on Knowing God'
 ---
 
 # Good Morning, Holy Spirit: A Reflection on Knowing God

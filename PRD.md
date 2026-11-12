@@ -180,3 +180,16 @@ The project will be considered successful when:
 ## 12. Expected Outcome
 
 A functional personal blogging platform where visitors can read published articles and the administrator can securely manage blog content through a simple web interface.
+
+### Step to set up the app
+``` py
+python3 -m venv .venv
+source .venv/bin/activate
+pip install python-frontmatter
+pip install markdown
+pip install flask
+pip install python-dotenv
+touch .env
+python -c "import secrets; print(secrets.token_hex(32))"
+python -c 'from getpass import getpass; from werkzeug.security import generate_password_hash; print(generate_password_hash(getpass("Enter a new admin password: ")))'
+```
