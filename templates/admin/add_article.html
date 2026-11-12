@@ -1,63 +1,56 @@
-
 {% extends "base.html" %}
 
-{% block title %}Add Article | My Personal Blog{% endblock %}
+{% block title %}Create Article | My Personal Blog{% endblock %}
+{% block body_class %}admin-page{% endblock %}
 
 {% block content %}
-
-<section class="add-article">
-    <h1>Create New Article</h1>
+<section class="admin-form-page">
+    <div class="form-page-heading">
+        <div>
+            <p class="dashboard-eyebrow">CONTENT MANAGEMENT</p>
+            <h1>Create a new article</h1>
+            <p>Write a new story for your readers or save it as a draft.</p>
+        </div>
+        <a class="button button-quiet" href="{{ url_for('dashboard') }}">← Back to dashboard</a>
+    </div>
 
     {% with messages = get_flashed_messages() %}
         {% for message in messages %}
-            <p class="error-message">{{ message }}</p>
+            <p class="form-alert" role="alert">{{ message }}</p>
         {% endfor %}
     {% endwith %}
 
-    <form method="POST">
-        <div>
-            <label for="title">Article Title</label>
-            <input
-                type="text"
-                id="title"
-                name="title"
-                required
-            >
+    <form method="POST" class="article-editor-form">
+        <div class="editor-field">
+            <label for="title">Article title</label>
+            <input type="text" id="title" name="title" placeholder="Give your article a clear title" required>
         </div>
-
-        <div>
-            <label for="date">Publication Date</label>
-            <input
-                type="date"
-                id="date"
-                name="date"
-                required
-            >
+        <div class="editor-two-columns">
+            <div class="editor-field">
+                <label for="date">Publication date</label>
+                <input type="date" id="date" name="date" required>
+            </div>
+            <div class="editor-field">
+                <label for="category">Category</label>
+                <input type="text" id="category" name="category" placeholder="e.g. Faith, Engineering">
+            </div>
         </div>
-
-        <div>
-            <label for="content">Article Content</label>
-            <textarea
-                id="content"
-                name="content"
-                rows="12"
-                required
-            ></textarea>
+        <div class="editor-field">
+            <label for="content">Article content</label>
+            <textarea id="content" name="content" rows="18" placeholder="Start writing your article here..." required></textarea>
+            <p class="editor-help">You can use Markdown headings, lists, links, and emphasis in your article.</p>
         </div>
-
-        <div>
-            <label>
-                <input
-                    type="checkbox"
-                    name="published"
-                    checked
-                >
-                Publish immediately
-            </label>
+        <label class="publish-option">
+            <input type="checkbox" name="published" checked>
+            <span>
+                <strong>Publish this article</strong>
+                <small>When unchecked, the article is saved as a private draft.</small>
+            </span>
+        </label>
+        <div class="editor-actions">
+            <button class="button button-primary" type="submit">Save article</button>
+            <a class="button button-quiet" href="{{ url_for('dashboard') }}">Cancel</a>
         </div>
-
-        <button type="submit">Save Article</button>
     </form>
 </section>
-
 {% endblock %}
