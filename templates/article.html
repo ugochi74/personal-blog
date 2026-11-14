@@ -1,43 +1,13 @@
-
 {% extends "base.html" %}
 
-{% block title %}{{ title }} | My Personal Blog<script>
-    const shareButton = document.querySelector(".share-article-button");
-    if (shareButton) {
-        shareButton.addEventListener("click", async () => {
-            const shareData = {
-                title: shareButton.dataset.shareTitle,
-                url: shareButton.dataset.shareUrl
-            };
-            try {
-                if (navigator.share) {
-                    await navigator.share(shareData);
-                } else if (navigator.clipboard) {
-                    await navigator.clipboard.writeText(shareData.url);
-                    shareButton.textContent = "Link copied";
-                } else {
-                    window.prompt("Copy this article link:", shareData.url);
-                }
-            } catch (error) {
-                if (error.name !== "AbortError") {
-                    window.prompt("Copy this article link:", shareData.url);
-                }
-            }
-        });
-    }
-</script>
-
-{% endblock %}
+{% block title %}{{ title }} | My Personal Blog{% endblock %}
 {% block meta_description %}{{ excerpt }}{% endblock %}
 {% block og_title %}{{ title }}{% endblock %}
 {% block og_description %}{{ excerpt }}{% endblock %}
 
 {% block content %}
-
 <article class="full-article">
-
     <a href="{{ url_for('home') }}">← Back to Home</a>
-
     <h1>{{ title }}</h1>
 
     <div class="article-meta-row">
@@ -47,10 +17,10 @@
             <span class="reading-time">{{ reading_time }} min read</span>
         </div>
         <div class="article-page-actions">
-        <button class="share-article-button" type="button" data-share-title="{{ title }}" data-share-url="{{ request.url }}">Share article</button>
-        <a class="download-pdf-button" href="{{ url_for('download_article_pdf', slug=slug) }}">
-            <span aria-hidden="true">↓</span> Download PDF
-        </a>
+            <button class="share-article-button" type="button" data-share-title="{{ title }}" data-share-url="{{ request.url }}">Share article</button>
+            <a class="download-pdf-button" href="{{ url_for('download_article_pdf', slug=slug) }}">
+                <span aria-hidden="true">↓</span> Download PDF
+            </a>
         </div>
     </div>
 
@@ -79,12 +49,16 @@
     <div class="article-content">
         {{ content | safe }}
     </div>
-
 </article>
 
 {% if related_articles %}
 <section class="related-section" aria-labelledby="related-heading">
-    <div class="articles-heading"><div><p class="section-eyebrow">KEEP EXPLORING</p><h2 id="related-heading">Related articles</h2></div></div>
+    <div class="articles-heading">
+        <div>
+            <p class="section-eyebrow">KEEP EXPLORING</p>
+            <h2 id="related-heading">Related articles</h2>
+        </div>
+    </div>
     <div class="article-grid">
         {% for item in related_articles %}
             <article class="article-card">
@@ -98,4 +72,29 @@
 </section>
 {% endif %}
 
+<script>
+    const shareButton = document.querySelector(".share-article-button");
+    if (shareButton) {
+        shareButton.addEventListener("click", async () => {
+            const shareData = {
+                title: shareButton.dataset.shareTitle,
+                url: shareButton.dataset.shareUrl
+            };
+            try {
+                if (navigator.share) {
+                    await navigator.share(shareData);
+                } else if (navigator.clipboard) {
+                    await navigator.clipboard.writeText(shareData.url);
+                    shareButton.textContent = "Link copied";
+                } else {
+                    window.prompt("Copy this article link:", shareData.url);
+                }
+            } catch (error) {
+                if (error.name !== "AbortError") {
+                    window.prompt("Copy this article link:", shareData.url);
+                }
+            }
+        });
+    }
+</script>
 {% endblock %}
