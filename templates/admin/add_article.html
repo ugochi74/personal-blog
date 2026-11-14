@@ -35,6 +35,11 @@
                 <input type="text" id="category" name="category" placeholder="e.g. Faith, Engineering">
             </div>
         </div>
+        <div class="editor-field">
+            <label for="excerpt">Short article summary</label>
+            <textarea id="excerpt" name="excerpt" rows="3" maxlength="300" placeholder="Write a short preview for the homepage (up to 300 characters)."></textarea>
+            <p class="editor-help">This summary appears on article cards and can be used by search engines.</p>
+        </div>
         <div class="book-access-fields">
             <h2>Complete book access (optional)</h2>
             <p class="editor-help">Add an official book page or upload a PDF you own or are authorized to distribute.</p>
@@ -53,6 +58,10 @@
             <textarea id="content" name="content" rows="18" placeholder="Start writing your article here..." required></textarea>
             <p class="editor-help">You can use Markdown headings, lists, links, and emphasis in your article.</p>
         </div>
+        <label class="publish-option">
+            <input type="checkbox" name="featured">
+            <span><strong>Feature this article</strong><small>Featured articles are highlighted near the top of the homepage.</small></span>
+        </label>
         <label class="publish-option">
             <input type="checkbox" name="published" checked>
             <span>
