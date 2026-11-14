@@ -62,6 +62,8 @@ def get_all_articles():
             "category": post.metadata.get("category", "General"),
             "content": post.content,
             "published": post.metadata.get("published", True),
+            "excerpt": post.metadata.get("excerpt", ""),
+            "featured": post.metadata.get("featured", False),
         }
 
         articles.append(article)
@@ -80,6 +82,12 @@ def get_articles():
         article for article in get_all_articles()
         if article["published"]
     ]
+
+
+def estimate_reading_time(content):
+    """Estimate reading time using 200 words per minute."""
+    word_count = len(content.split())
+    return max(1, (word_count + 199) // 200)
 
 
 def is_valid_book_url(value):
@@ -143,7 +151,11 @@ def home():
         categories=categories,
         search_query=search_query,
         selected_category=selected_category,
-        total_articles=len(all_articles)
+        total_articles=len(all_articles),
+        featured_articles=(
+            [article for article in all_articles if article["featured"]][:3]
+            if not search_query and not selected_category else []
+        )
     )
 
 
@@ -170,6 +182,14 @@ def article(slug):
         post.content,
         extensions=["fenced_code"]
     )
+    related_articles = [
+        item for item in get_articles()
+        if item["slug"] != slug
+        and item["category"].casefold() == post.metadata.get("category", "General").casefold()
+    ][:3]
+    excerpt = post.metadata.get("excerpt", "").strip()
+    if not excerpt:
+        excerpt = " ".join(post.content.split())[:160]
 
     return render_template(
         "article.html",
@@ -178,6 +198,9 @@ def article(slug):
         category=post.metadata.get("category", "General"),
         content=content,
         slug=slug,
+        excerpt=excerpt,
+        reading_time=estimate_reading_time(post.content),
+        related_articles=related_articles,
         book_url=post.metadata.get("book_url", ""),
         book_pdf=(
             f"book_pdfs/{slug}.pdf"
@@ -246,12 +269,14 @@ def dashboard():
     articles = get_all_articles()
     published_count = sum(article["published"] for article in articles)
     draft_count = len(articles) - published_count
+    featured_count = sum(bool(article["featured"]) for article in articles)
 
     return render_template(
         "admin/dashboard.html",
         articles=articles,
         published_count=published_count,
         draft_count=draft_count,
+        featured_count=featured_count,
         total_count=len(articles)
     )
 
@@ -265,6 +290,8 @@ def add_article():
         date = request.form.get("date", "").strip()
         content = request.form.get("content", "").strip()
         category = request.form.get("category", "").strip() or "General"
+        excerpt = request.form.get("excerpt", "").strip()
+        featured = request.form.get("featured") == "on"
         published = request.form.get("published") == "on"
         book_url = request.form.get("book_url", "").strip()
         book_pdf = request.files.get("book_pdf")
@@ -299,6 +326,8 @@ def add_article():
             date=date,
             category=category,
             published=published,
+            excerpt=excerpt,
+            featured=featured,
             book_url=book_url,
             book_pdf=f"{slug}.pdf" if book_pdf and book_pdf.filename else ""
         )
@@ -329,6 +358,8 @@ def edit_article(slug):
         title = request.form.get("title", "").strip()
         date = request.form.get("date", "").strip()
         category = request.form.get("category", "").strip() or "General"
+        excerpt = request.form.get("excerpt", "").strip()
+        featured = request.form.get("featured") == "on"
         content = request.form.get("content", "").strip()
         published = request.form.get("published") == "on"
         book_url = request.form.get("book_url", "").strip()
@@ -361,6 +392,8 @@ def edit_article(slug):
         post.metadata["title"] = title
         post.metadata["date"] = date
         post.metadata["category"] = category
+        post.metadata["excerpt"] = excerpt
+        post.metadata["featured"] = featured
         post.metadata["published"] = published
         post.metadata["book_url"] = book_url
         post.content = content
@@ -379,6 +412,8 @@ def edit_article(slug):
         "title": post.metadata.get("title", "Untitled"),
         "date": str(post.metadata.get("date", "")),
         "category": post.metadata.get("category", "General"),
+        "excerpt": post.metadata.get("excerpt", ""),
+        "featured": post.metadata.get("featured", False),
         "content": post.content,
         "published": post.metadata.get("published", True),
         "book_url": post.metadata.get("book_url", ""),
