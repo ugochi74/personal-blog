@@ -2,6 +2,10 @@
 
 A Flask-based personal blog for articles about Christian growth, software engineering, and personal development.
 
+## Reader experience features
+
+The article list displays six items per page and preserves active search and category filters when readers move between pages. Article pages include a Share article action that uses the device share menu when available, otherwise copies the link or offers it for manual copying.
+
 ## Publishing features
 
 The homepage supports featured articles and short article summaries. Article pages display an estimated reading time, show related articles from the same category, and include basic description and Open Graph metadata for sharing. In the admin editor, write a short summary and select **Feature this article** to highlight it on the homepage. Reading time is estimated at 200 words per minute.
