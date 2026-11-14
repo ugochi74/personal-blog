@@ -269,7 +269,7 @@ def dashboard():
     articles = get_all_articles()
     published_count = sum(article["published"] for article in articles)
     draft_count = len(articles) - published_count
-    featured_count = sum(bool(article["featured"]) for article in articles)
+    featured_count = sum(bool(article["featured"] and article["published"]) for article in articles)
 
     return render_template(
         "admin/dashboard.html",
@@ -290,7 +290,7 @@ def add_article():
         date = request.form.get("date", "").strip()
         content = request.form.get("content", "").strip()
         category = request.form.get("category", "").strip() or "General"
-        excerpt = request.form.get("excerpt", "").strip()
+        excerpt = request.form.get("excerpt", "").strip()[:300]
         featured = request.form.get("featured") == "on"
         published = request.form.get("published") == "on"
         book_url = request.form.get("book_url", "").strip()
@@ -374,6 +374,8 @@ def edit_article(slug):
                     "title": title,
                     "date": date,
                     "category": category,
+                    "excerpt": excerpt,
+                    "featured": featured,
                     "content": content,
                     "published": published,
                     "book_url": book_url,
