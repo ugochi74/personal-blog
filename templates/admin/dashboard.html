@@ -23,7 +23,7 @@
         {% endfor %}
     {% endwith %}
 
-    <div class="dashboard-summary">
+    <div class="dashboard-summary dashboard-summary-four">
         <div class="summary-card">
             <span class="summary-label">Total articles</span>
             <strong>{{ total_count }}</strong>
@@ -38,6 +38,11 @@
             <span class="summary-label">Drafts</span>
             <strong>{{ draft_count }}</strong>
             <span class="summary-note">Only visible to you</span>
+        </div>
+        <div class="summary-card">
+            <span class="summary-label">Featured</span>
+            <strong>{{ featured_count }}</strong>
+            <span class="summary-note">Highlighted on the homepage</span>
         </div>
     </div>
 
@@ -58,6 +63,7 @@
                         <h3>{{ article.title }}</h3>
                         <p>{{ article.category }} <span class="meta-separator">·</span> {{ article.date }}</p>
                     </div>
+                    {% if article.featured %}<span class="article-status status-featured">Featured</span>{% endif %}
                     {% if article.published %}
                         <span class="article-status status-published">Published</span>
                     {% else %}
