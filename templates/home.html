@@ -2,6 +2,7 @@
 {% extends "base.html" %}
 
 {% block title %}Home | My Personal Blog{% endblock %}
+{% block meta_description %}Explore articles on Christian growth, software engineering, books, and personal development.{% endblock %}
 
 {% block content %}
 
@@ -10,6 +11,25 @@
     <h1>Welcome to My Personal Blog</h1>
     <p>Ideas and lessons on Christian growth, software engineering, and personal development.</p>
 </section>
+
+{% if featured_articles %}
+<section class="featured-section" aria-labelledby="featured-heading">
+    <div class="featured-heading-row">
+        <div><p class="section-eyebrow">FEATURED CONTENT</p><h2 id="featured-heading">Featured articles</h2></div>
+    </div>
+    <div class="featured-grid">
+        {% for article in featured_articles %}
+            <article class="featured-card">
+                <span class="featured-label">Featured</span>
+                <p class="article-category">{{ article.category }}</p>
+                <h3><a href="{{ url_for('article', slug=article.slug) }}">{{ article.title }}</a></h3>
+                {% if article.excerpt %}<p class="featured-excerpt">{{ article.excerpt }}</p>{% endif %}
+                <a class="read-article-link" href="{{ url_for('article', slug=article.slug) }}">Read article →</a>
+            </article>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
 
 <section class="articles">
     <div class="articles-heading">
@@ -64,6 +84,7 @@
                             {{ article.title }}
                         </a>
                     </h3>
+                    {% if article.excerpt %}<p class="article-card-excerpt">{{ article.excerpt }}</p>{% endif %}
                     <p class="article-card-date">Published {{ article.date }}</p>
                     <a class="read-article-link" href="{{ url_for('article', slug=article.slug) }}">
                         Read article <span aria-hidden="true">→</span>
