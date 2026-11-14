@@ -358,7 +358,7 @@ def edit_article(slug):
         title = request.form.get("title", "").strip()
         date = request.form.get("date", "").strip()
         category = request.form.get("category", "").strip() or "General"
-        excerpt = request.form.get("excerpt", "").strip()
+        excerpt = request.form.get("excerpt", "").strip()[:300]
         featured = request.form.get("featured") == "on"
         content = request.form.get("content", "").strip()
         published = request.form.get("published") == "on"
