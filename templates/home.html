@@ -92,6 +92,21 @@
                 </article>
             {% endfor %}
         </div>
+        {% if total_pages > 1 %}
+            <nav class="pagination" aria-label="Article pages">
+                {% if page > 1 %}
+                    <a href="{{ url_for('home', page=page - 1, q=search_query, category=selected_category) }}" rel="prev">← Previous</a>
+                {% else %}
+                    <span class="pagination-disabled">← Previous</span>
+                {% endif %}
+                <span class="pagination-status">Page {{ page }} of {{ total_pages }}</span>
+                {% if page < total_pages %}
+                    <a href="{{ url_for('home', page=page + 1, q=search_query, category=selected_category) }}" rel="next">Next →</a>
+                {% else %}
+                    <span class="pagination-disabled">Next →</span>
+                {% endif %}
+            </nav>
+        {% endif %}
     {% else %}
         <div class="no-articles">
             {% if search_query or selected_category %}
