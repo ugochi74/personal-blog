@@ -145,9 +145,20 @@ def home():
             or search_term in article["content"].casefold()
         ]
 
+    per_page = 6
+    total_results = len(articles)
+    total_pages = max(1, (total_results + per_page - 1) // per_page)
+    page = max(1, request.args.get("page", 1, type=int))
+    page = min(page, total_pages)
+    start_index = (page - 1) * per_page
+    page_articles = articles[start_index:start_index + per_page]
+
     return render_template(
         "home.html",
-        articles=articles,
+        articles=page_articles,
+        page=page,
+        total_pages=total_pages,
+        total_results=total_results,
         categories=categories,
         search_query=search_query,
         selected_category=selected_category,
