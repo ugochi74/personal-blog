@@ -2,6 +2,9 @@
 {% extends "base.html" %}
 
 {% block title %}{{ title }} | My Personal Blog{% endblock %}
+{% block meta_description %}{{ excerpt }}{% endblock %}
+{% block og_title %}{{ title }}{% endblock %}
+{% block og_description %}{{ excerpt }}{% endblock %}
 
 {% block content %}
 
@@ -15,6 +18,7 @@
         <div class="article-meta-details">
             <p class="article-category">{{ category }}</p>
             <p class="article-date">Published: {{ date }}</p>
+            <span class="reading-time">{{ reading_time }} min read</span>
         </div>
         <a class="download-pdf-button" href="{{ url_for('download_article_pdf', slug=slug) }}">
             <span aria-hidden="true">↓</span> Download PDF
@@ -48,5 +52,21 @@
     </div>
 
 </article>
+
+{% if related_articles %}
+<section class="related-section" aria-labelledby="related-heading">
+    <div class="articles-heading"><div><p class="section-eyebrow">KEEP EXPLORING</p><h2 id="related-heading">Related articles</h2></div></div>
+    <div class="article-grid">
+        {% for item in related_articles %}
+            <article class="article-card">
+                <p class="article-category">{{ item.category }}</p>
+                <h3><a href="{{ url_for('article', slug=item.slug) }}">{{ item.title }}</a></h3>
+                {% if item.excerpt %}<p class="article-card-excerpt">{{ item.excerpt }}</p>{% endif %}
+                <a class="read-article-link" href="{{ url_for('article', slug=item.slug) }}">Read article →</a>
+            </article>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
 
 {% endblock %}
