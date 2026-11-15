@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function updateWritingStats() {
         if (!contentField) return;
-        const words = contentField.value.trim().split(/\\s+/).filter(Boolean).length;
+        const words = contentField.value.trim().split(/\s+/).filter(Boolean).length;
         if (wordCount) wordCount.textContent = words;
         if (readingEstimate) readingEstimate.textContent = Math.max(1, Math.ceil(words / 200));
     }
