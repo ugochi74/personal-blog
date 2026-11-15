@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
-{% block title %}Edit Article | My Personal Blog{% endblock %}
+{% block title %}Edit Article | My Personal Blog<script src="{{ url_for('static', filename='js/admin-editor.js') }}" defer></script>
+{% endblock %}
 {% block body_class %}admin-page{% endblock %}
 
 {% block content %}
@@ -38,6 +39,7 @@
         <div class="editor-field">
             <label for="excerpt">Short article summary</label>
             <textarea id="excerpt" name="excerpt" rows="3" maxlength="300" placeholder="Write a short preview for the homepage.">{{ article.excerpt }}</textarea>
+            <p class="editor-counter"><span id="excerpt-count">0</span>/300 characters</p>
             <p class="editor-help">This summary appears on article cards and can be used by search engines.</p>
         </div>
         <div class="book-access-fields">
@@ -60,7 +62,8 @@
         <div class="editor-field">
             <label for="content">Article content</label>
             <textarea id="content" name="content" rows="18" required>{{ article.content }}</textarea>
-            <p class="editor-help">You can use Markdown headings, lists, links, and emphasis in your article.</p>
+            <div class="editor-writing-stats" aria-live="polite"><span><strong id="word-count">0</strong> words</span><span><strong id="reading-estimate">1</strong> min estimated reading time</span></div>
+            <p class="editor-help">Markdown is supported: use # for headings, - for lists, **bold**, and [links](https://example.com).</p>
         </div>
         <label class="publish-option">
             <input type="checkbox" name="featured" {% if article.featured %}checked{% endif %}>
