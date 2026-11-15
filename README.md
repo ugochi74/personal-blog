@@ -44,3 +44,24 @@ For a hosted deployment, make sure the hosting platform uses persistent file sto
 ## Article PDF versus complete book PDF
 
 The existing **Download PDF** button creates a PDF copy of the blog article. The separate complete-book section links to an uploaded authorized book PDF or an official external book page.
+
+
+## Discovery, sharing, and reliability
+
+The blog now provides additional publishing infrastructure:
+
+- **RSS feed:** `/feed.xml` lists the latest 20 published articles for feed readers.
+- **XML sitemap:** `/sitemap.xml` lists the homepage and published article pages for search engines.
+- **Crawler rules:** `/robots.txt` points crawlers to the sitemap and keeps the admin URL space out of crawler discovery.
+- **Browser security headers:** responses include content-type sniffing protection, clickjacking protection, a referrer policy, and a restrictive permissions policy.
+- **Helpful error pages:** custom 404 and 500 pages match the site's design.
+
+### Run the automated tests
+
+Install the dependencies, then run:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+The route tests use temporary article files and do not modify your real blog posts.
