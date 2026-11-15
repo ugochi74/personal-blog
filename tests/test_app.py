@@ -67,6 +67,7 @@ class BlogRouteTests(unittest.TestCase):
         response = self.client.get("/robots.txt")
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"Disallow: /admin/", response.data)
+        self.assertIn(b"User-agent: *\\n", response.data)
         self.assertIn(b"Sitemap:", response.data)
 
     def test_security_headers_are_present(self):
