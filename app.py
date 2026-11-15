@@ -281,10 +281,52 @@ def login():
 @app.route("/admin/dashboard")
 @login_required
 def dashboard():
-    articles = get_all_articles()
-    published_count = sum(article["published"] for article in articles)
-    draft_count = len(articles) - published_count
-    featured_count = sum(bool(article["featured"] and article["published"]) for article in articles)
+    all_articles = get_all_articles()
+    published_count = sum(article["published"] for article in all_articles)
+    draft_count = len(all_articles) - published_count
+    featured_count = sum(
+        bool(article["featured"] and article["published"])
+        for article in all_articles
+    )
+
+    search_query = request.args.get("q", "").strip()
+    selected_status = request.args.get("status", "all").strip().lower()
+    selected_category = request.args.get("category", "").strip()
+    sort_by = request.args.get("sort", "newest").strip().lower()
+
+    articles = all_articles
+
+    if selected_status == "published":
+        articles = [item for item in articles if item["published"]]
+    elif selected_status == "draft":
+        articles = [item for item in articles if not item["published"]]
+    elif selected_status == "featured":
+        articles = [item for item in articles if item["featured"]]
+
+    if selected_category:
+        articles = [
+            item for item in articles
+            if item["category"].casefold() == selected_category.casefold()
+        ]
+
+    if search_query:
+        term = search_query.casefold()
+        articles = [
+            item for item in articles
+            if term in item["title"].casefold()
+            or term in item["category"].casefold()
+            or term in item["excerpt"].casefold()
+            or term in item["content"].casefold()
+        ]
+
+    if sort_by == "oldest":
+        articles.sort(key=lambda item: item["date"])
+    elif sort_by == "title":
+        articles.sort(key=lambda item: item["title"].casefold())
+    else:
+        articles.sort(key=lambda item: item["date"], reverse=True)
+
+    categories = sorted({item["category"] for item in all_articles})
 
     return render_template(
         "admin/dashboard.html",
@@ -292,7 +334,13 @@ def dashboard():
         published_count=published_count,
         draft_count=draft_count,
         featured_count=featured_count,
-        total_count=len(articles)
+        total_count=len(all_articles),
+        categories=categories,
+        search_query=search_query,
+        selected_status=selected_status,
+        selected_category=selected_category,
+        sort_by=sort_by,
+        result_count=len(articles)
     )
 
 
