@@ -1,5 +1,7 @@
 
 from pathlib import Path
+from datetime import datetime
+from email.utils import format_datetime
 from xml.etree import ElementTree as ET
 from functools import wraps
 from urllib.parse import urlparse
@@ -490,7 +492,11 @@ def rss_feed():
         )
         ET.SubElement(item, "description").text = article_item["excerpt"] or ""
         if article_item["date"]:
-            ET.SubElement(item, "pubDate").text = article_item["date"]
+            try:
+                published_at = datetime.fromisoformat(article_item["date"])
+                ET.SubElement(item, "pubDate").text = format_datetime(published_at)
+            except ValueError:
+                pass
 
     xml_content = ET.tostring(root, encoding="utf-8", xml_declaration=True)
     return Response(xml_content, mimetype="application/rss+xml")
