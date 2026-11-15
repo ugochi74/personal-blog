@@ -527,10 +527,10 @@ def sitemap():
 def robots_txt():
     """Tell search crawlers which public sitemap to use."""
     content = (
-        "User-agent: *\\n"
-        "Allow: /\\n"
-        "Disallow: /admin/\\n"
-        f"Sitemap: {request.url_root.rstrip('/')}{url_for('sitemap')}\\n"
+        "User-agent: *\n"
+        "Allow: /\n"
+        "Disallow: /admin/\n"
+        f"Sitemap: {request.url_root.rstrip('/')}{url_for('sitemap')}\n"
     )
     return Response(content, mimetype="text/plain")
 
