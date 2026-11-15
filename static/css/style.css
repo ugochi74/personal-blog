@@ -1686,3 +1686,78 @@ body:not(.admin-page) .no-articles a {
 }
 .error-page h1 { margin: 10px 0 12px; color: #172f50; font-size: clamp(30px, 5vw, 42px); }
 .error-page p:not(.section-eyebrow) { margin-bottom: 24px; color: #66758b; }
+
+
+/* Admin dashboard search and filter controls */
+.admin-filter-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 18px 0 20px;
+    padding: 17px;
+    border: 1px solid #e3e9f1;
+    border-radius: 12px;
+    background: #fff;
+}
+.admin-filter-search input,
+.admin-filter-controls select {
+    min-height: 43px;
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #dce3ec;
+    border-radius: 8px;
+    background: #fbfcfe;
+    color: #24364d;
+    font: inherit;
+    font-size: 13px;
+}
+.admin-filter-search input:focus,
+.admin-filter-controls select:focus {
+    outline: none;
+    border-color: #5279a6;
+    box-shadow: 0 0 0 3px rgba(82, 121, 166, .11);
+}
+.admin-filter-controls {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(130px, 1fr)) auto auto;
+    gap: 10px;
+}
+.admin-filter-controls .button {
+    display: inline-flex;
+    min-height: 43px;
+    align-items: center;
+    justify-content: center;
+}
+.editor-counter {
+    color: #8490a3;
+    font-size: 11px;
+    text-align: right;
+}
+.editor-writing-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    padding: 11px 13px;
+    border: 1px solid #e3e9f1;
+    border-radius: 8px;
+    background: #f7f9fc;
+    color: #64748b;
+    font-size: 12px;
+}
+.editor-writing-stats strong {
+    color: #244a76;
+    font-size: 13px;
+}
+@media (max-width: 760px) {
+    .admin-filter-controls {
+        grid-template-columns: 1fr 1fr;
+    }
+    .admin-filter-controls .button {
+        width: 100%;
+    }
+}
+@media (max-width: 480px) {
+    .admin-filter-controls {
+        grid-template-columns: 1fr;
+    }
+}
