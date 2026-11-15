@@ -1,5 +1,6 @@
 
 from pathlib import Path
+from xml.etree import ElementTree as ET
 from functools import wraps
 from urllib.parse import urlparse
 
@@ -15,7 +16,8 @@ from flask import (
     url_for,
     session,
     flash,
-    send_file
+    send_file,
+    Response
 )
 
 from werkzeug.security import check_password_hash
@@ -464,6 +466,91 @@ def logout():
     return redirect(url_for("login"))
 
 
+# Search-engine and feed endpoints
+@app.route("/feed.xml")
+def rss_feed():
+    """Provide an RSS feed containing the latest published articles."""
+    root = ET.Element("rss", version="2.0")
+    channel = ET.SubElement(root, "channel")
+    ET.SubElement(channel, "title").text = "My Personal Blog"
+    ET.SubElement(channel, "link").text = request.url_root.rstrip("/")
+    ET.SubElement(channel, "description").text = (
+        "Articles about Christian growth, software engineering, books, "
+        "and personal development."
+    )
+
+    for article_item in get_articles()[:20]:
+        item = ET.SubElement(channel, "item")
+        ET.SubElement(item, "title").text = article_item["title"]
+        ET.SubElement(item, "link").text = request.url_root.rstrip("/") + url_for(
+            "article", slug=article_item["slug"]
+        )
+        ET.SubElement(item, "guid").text = request.url_root.rstrip("/") + url_for(
+            "article", slug=article_item["slug"]
+        )
+        ET.SubElement(item, "description").text = article_item["excerpt"] or ""
+        if article_item["date"]:
+            ET.SubElement(item, "pubDate").text = article_item["date"]
+
+    xml_content = ET.tostring(root, encoding="utf-8", xml_declaration=True)
+    return Response(xml_content, mimetype="application/rss+xml")
+
+
+@app.route("/sitemap.xml")
+def sitemap():
+    """List public URLs so search engines can discover published content."""
+    root = ET.Element(
+        "urlset",
+        xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+    )
+    public_urls = [url_for("home", _external=True)]
+    public_urls.extend(
+        url_for("article", slug=item["slug"], _external=True)
+        for item in get_articles()
+    )
+
+    for public_url in public_urls:
+        url_element = ET.SubElement(root, "url")
+        ET.SubElement(url_element, "loc").text = public_url
+
+    xml_content = ET.tostring(root, encoding="utf-8", xml_declaration=True)
+    return Response(xml_content, mimetype="application/xml")
+
+
+@app.route("/robots.txt")
+def robots_txt():
+    """Tell search crawlers which public sitemap to use."""
+    content = (
+        "User-agent: *\\n"
+        "Allow: /\\n"
+        "Disallow: /admin/\\n"
+        f"Sitemap: {request.url_root.rstrip('/')}{url_for('sitemap')}\\n"
+    )
+    return Response(content, mimetype="text/plain")
+
+
+@app.after_request
+def add_security_headers(response):
+    """Apply baseline browser security headers to every response."""
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    response.headers.setdefault(
+        "Permissions-Policy", "camera=(), microphone=(), geolocation=()"
+    )
+    return response
+
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template("errors/404.html"), 404
+
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    return render_template("errors/500.html"), 500
+
+
 # Start application
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=app.config.get("DEBUG", False))
