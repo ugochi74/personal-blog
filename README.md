@@ -65,3 +65,20 @@ python -m unittest discover -s tests -v
 ```
 
 The route tests use temporary article files and do not modify your real blog posts.
+
+
+## Admin dashboard and writing tools
+
+The administrator dashboard supports:
+- Search across article titles, categories, summaries, and body text.
+- Filter by publication status (all, published, drafts, or featured).
+- Filter by category and sort by newest, oldest, or title.
+- Quick links to view, edit, and delete articles.
+
+The article editor displays a live word count, an estimated reading time (based on 200 words per minute), and a character count for the article summary.
+
+Dashboard and editor changes are covered by the automated test suite:
+
+```bash
+python -m unittest discover -s tests -v
+```
