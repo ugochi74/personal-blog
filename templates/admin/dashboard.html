@@ -13,6 +13,7 @@
         </div>
         <div class="dashboard-actions">
             <a class="button button-primary" href="{{ url_for('add_article') }}">＋ New Article</a>
+            <a class="button button-quiet" href="{{ url_for('home') }}" target="_blank" rel="noopener">View blog ↗</a>
             <a class="button button-quiet" href="{{ url_for('logout') }}">Log out</a>
         </div>
     </div>
@@ -24,35 +25,50 @@
     {% endwith %}
 
     <div class="dashboard-summary dashboard-summary-four">
-        <div class="summary-card">
-            <span class="summary-label">Total articles</span>
-            <strong>{{ total_count }}</strong>
-            <span class="summary-note">All content in your library</span>
-        </div>
-        <div class="summary-card">
-            <span class="summary-label">Published</span>
-            <strong>{{ published_count }}</strong>
-            <span class="summary-note">Visible to your readers</span>
-        </div>
-        <div class="summary-card">
-            <span class="summary-label">Drafts</span>
-            <strong>{{ draft_count }}</strong>
-            <span class="summary-note">Only visible to you</span>
-        </div>
-        <div class="summary-card">
-            <span class="summary-label">Featured</span>
-            <strong>{{ featured_count }}</strong>
-            <span class="summary-note">Highlighted on the homepage</span>
-        </div>
+        <div class="summary-card"><span class="summary-label">Total articles</span><strong>{{ total_count }}</strong><span class="summary-note">All content in your library</span></div>
+        <div class="summary-card"><span class="summary-label">Published</span><strong>{{ published_count }}</strong><span class="summary-note">Visible to your readers</span></div>
+        <div class="summary-card"><span class="summary-label">Drafts</span><strong>{{ draft_count }}</strong><span class="summary-note">Only visible to you</span></div>
+        <div class="summary-card"><span class="summary-label">Featured</span><strong>{{ featured_count }}</strong><span class="summary-note">Highlighted on the homepage</span></div>
     </div>
 
     <div class="dashboard-section-heading">
-        <div>
-            <h2>Your content</h2>
-            <p>Edit, publish, or remove articles from your blog.</p>
-        </div>
-        <span class="dashboard-total">{{ total_count }} item{% if total_count != 1 %}s{% endif %}</span>
+        <div><h2>Your content</h2><p>Search, filter, sort, and manage your articles.</p></div>
+        <span class="dashboard-total">Showing {{ result_count }} of {{ total_count }} item{% if total_count != 1 %}s{% endif %}</span>
     </div>
+
+    <form class="admin-filter-form" method="GET" action="{{ url_for('dashboard') }}">
+        <div class="admin-filter-search">
+            <label class="visually-hidden" for="admin-search">Search articles</label>
+            <input id="admin-search" type="search" name="q" value="{{ search_query }}" placeholder="Search titles, categories, or article content...">
+        </div>
+        <div class="admin-filter-controls">
+            <div><label class="visually-hidden" for="admin-status">Publication status</label>
+                <select id="admin-status" name="status">
+                    <option value="all" {% if selected_status == 'all' %}selected{% endif %}>All statuses</option>
+                    <option value="published" {% if selected_status == 'published' %}selected{% endif %}>Published</option>
+                    <option value="draft" {% if selected_status == 'draft' %}selected{% endif %}>Drafts</option>
+                    <option value="featured" {% if selected_status == 'featured' %}selected{% endif %}>Featured</option>
+                </select>
+            </div>
+            <div><label class="visually-hidden" for="admin-category">Category</label>
+                <select id="admin-category" name="category">
+                    <option value="">All categories</option>
+                    {% for category in categories %}
+                        <option value="{{ category }}" {% if selected_category == category %}selected{% endif %}>{{ category }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div><label class="visually-hidden" for="admin-sort">Sort articles</label>
+                <select id="admin-sort" name="sort">
+                    <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest first</option>
+                    <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>Oldest first</option>
+                    <option value="title" {% if sort_by == 'title' %}selected{% endif %}>Title A–Z</option>
+                </select>
+            </div>
+            <button class="button button-primary" type="submit">Apply filters</button>
+            <a class="button button-quiet" href="{{ url_for('dashboard') }}">Reset</a>
+        </div>
+    </form>
 
     <div class="dashboard-article-list">
         {% if articles %}
@@ -64,15 +80,10 @@
                         <p>{{ article.category }} <span class="meta-separator">·</span> {{ article.date }}</p>
                     </div>
                     {% if article.featured %}<span class="article-status status-featured">Featured</span>{% endif %}
-                    {% if article.published %}
-                        <span class="article-status status-published">Published</span>
-                    {% else %}
-                        <span class="article-status status-draft">Draft</span>
-                    {% endif %}
+                    {% if article.published %}<span class="article-status status-published">Published</span>
+                    {% else %}<span class="article-status status-draft">Draft</span>{% endif %}
                     <div class="article-actions">
-                        {% if article.published %}
-                            <a class="article-action-link" href="{{ url_for('article', slug=article.slug) }}" target="_blank" rel="noopener">View</a>
-                        {% endif %}
+                        {% if article.published %}<a class="article-action-link" href="{{ url_for('article', slug=article.slug) }}" target="_blank" rel="noopener">View</a>{% endif %}
                         <a class="article-action-link" href="{{ url_for('edit_article', slug=article.slug) }}">Edit</a>
                         <form method="POST" action="{{ url_for('delete_article', slug=article.slug) }}" onsubmit="return confirm('Are you sure you want to permanently delete this article?');">
                             <button class="article-delete-button" type="submit">Delete</button>
@@ -82,10 +93,11 @@
             {% endfor %}
         {% else %}
             <div class="dashboard-empty">
-                <div class="empty-icon">✎</div>
-                <h3>Your blog is waiting for its first story</h3>
-                <p>Create an article to start building your blog.</p>
-                <a class="button button-primary" href="{{ url_for('add_article') }}">Create your first article</a>
+                <div class="empty-icon">⌕</div>
+                <h3>{% if total_count %}No articles match those filters{% else %}Your blog is waiting for its first story{% endif %}</h3>
+                <p>{% if total_count %}Try another search or reset your filters to see all articles.{% else %}Create an article to start building your blog.{% endif %}</p>
+                {% if total_count %}<a class="button button-quiet" href="{{ url_for('dashboard') }}">Clear filters</a>
+                {% else %}<a class="button button-primary" href="{{ url_for('add_article') }}">Create your first article</a>{% endif %}
             </div>
         {% endif %}
     </div>
