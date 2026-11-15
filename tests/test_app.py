@@ -82,5 +82,37 @@ class BlogRouteTests(unittest.TestCase):
         self.assertIn(b"We couldn't find that page", response.data)
 
 
+    def test_dashboard_requires_admin_login(self):
+        response = self.client.get("/admin/dashboard")
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/admin/login", response.headers["Location"])
+
+    def test_admin_dashboard_shows_article_counts(self):
+        with self.client.session_transaction() as session:
+            session["admin_logged_in"] = True
+        response = self.client.get("/admin/dashboard")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Total articles", response.data)
+        self.assertIn(b"Published Test Article", response.data)
+        self.assertIn(b"Private Draft Article", response.data)
+
+    def test_dashboard_can_filter_drafts(self):
+        with self.client.session_transaction() as session:
+            session["admin_logged_in"] = True
+        response = self.client.get("/admin/dashboard?status=draft")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Private Draft Article", response.data)
+        self.assertNotIn(b"Published Test Article", response.data)
+
+    def test_dashboard_can_search_article_titles(self):
+        with self.client.session_transaction() as session:
+            session["admin_logged_in"] = True
+        response = self.client.get("/admin/dashboard?q=Published")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Published Test Article", response.data)
+        self.assertNotIn(b"Private Draft Article", response.data)
+
+
+
 if __name__ == "__main__":
     unittest.main()
