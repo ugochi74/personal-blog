@@ -1,4 +1,5 @@
 import os
+import re
 import tempfile
 import unittest
 from pathlib import Path
@@ -33,7 +34,7 @@ class BlogRouteTests(unittest.TestCase):
         self.pdf_patch = patch("app.BOOK_PDF_DIR", self.pdf_dir)
         self.articles_patch.start()
         self.pdf_patch.start()
-        app.config.update(TESTING=True, SECRET_KEY="test-secret-key")
+        app.config.update(TESTING=True, WTF_CSRF_ENABLED=True, SECRET_KEY="test-secret-key")
         self.client = app.test_client()
 
     def tearDown(self):
@@ -81,6 +82,25 @@ class BlogRouteTests(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertIn(b"We couldn't find that page", response.data)
 
+
+
+    def test_admin_post_without_csrf_token_is_rejected(self):
+        response = self.client.post("/admin/login", data={
+            "username": "test-admin",
+            "password": "incorrect"
+        })
+        self.assertEqual(response.status_code, 400)
+
+    def test_login_form_contains_csrf_token(self):
+        response = self.client.get("/admin/login")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('name="csrf_token"', response.get_data(as_text=True))
+
+    def test_logout_requires_post(self):
+        with self.client.session_transaction() as session:
+            session["admin_logged_in"] = True
+        response = self.client.get("/admin/logout")
+        self.assertEqual(response.status_code, 405)
 
     def test_dashboard_requires_admin_login(self):
         response = self.client.get("/admin/dashboard")
