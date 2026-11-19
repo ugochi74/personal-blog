@@ -82,3 +82,8 @@ Dashboard and editor changes are covered by the automated test suite:
 ```bash
 python -m unittest discover -s tests -v
 ```
+
+
+## Admin security
+
+The admin area uses Flask-WTF CSRF protection. Every form that changes data—including login, article creation, editing, deletion, and logout—must submit a valid CSRF token. Logout uses POST rather than GET so that visiting a URL cannot trigger a logout action.
