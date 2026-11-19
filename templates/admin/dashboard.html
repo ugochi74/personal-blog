@@ -14,7 +14,10 @@
         <div class="dashboard-actions">
             <a class="button button-primary" href="{{ url_for('add_article') }}">＋ New Article</a>
             <a class="button button-quiet" href="{{ url_for('home') }}" target="_blank" rel="noopener">View blog ↗</a>
-            <a class="button button-quiet" href="{{ url_for('logout') }}">Log out</a>
+            <form method="POST" action="{{ url_for('logout') }}">
+                {{ csrf_token() }}
+                <button class="button button-quiet" type="submit">Log out</button>
+            </form>
         </div>
     </div>
 
@@ -86,6 +89,7 @@
                         {% if article.published %}<a class="article-action-link" href="{{ url_for('article', slug=article.slug) }}" target="_blank" rel="noopener">View</a>{% endif %}
                         <a class="article-action-link" href="{{ url_for('edit_article', slug=article.slug) }}">Edit</a>
                         <form method="POST" action="{{ url_for('delete_article', slug=article.slug) }}" onsubmit="return confirm('Are you sure you want to permanently delete this article?');">
+                            {{ csrf_token() }}
                             <button class="article-delete-button" type="submit">Delete</button>
                         </form>
                     </div>
