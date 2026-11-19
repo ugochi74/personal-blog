@@ -9,6 +9,8 @@ from urllib.parse import urlparse
 import frontmatter
 import markdown
 
+from flask_wtf.csrf import CSRFProtect
+
 from flask import (
     Flask,
     render_template,
@@ -32,6 +34,9 @@ app = Flask(__name__)
 
 # Load application configuration
 app.config.from_object("config.Config")
+
+# Protect every POST request against cross-site request forgery.
+csrf = CSRFProtect(app)
 
 
 # Locate the articles directory
@@ -508,7 +513,7 @@ def delete_article(slug):
 
 
 # Admin logout
-@app.route("/admin/logout")
+@app.route("/admin/logout", methods=["POST"])
 @login_required
 def logout():
     session.clear()
