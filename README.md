@@ -87,3 +87,14 @@ python -m unittest discover -s tests -v
 ## Admin security
 
 The admin area uses Flask-WTF CSRF protection. Every form that changes data—including login, article creation, editing, deletion, and logout—must submit a valid CSRF token. Logout uses POST rather than GET so that visiting a URL cannot trigger a logout action.
+
+
+### Administrator session settings
+
+Admin sessions are configured to expire after 30 minutes. Session cookies use the HttpOnly and SameSite=Lax settings. For a production deployment served over HTTPS, set the following environment variable:
+
+```env
+SESSION_COOKIE_SECURE=true
+```
+
+Keep this setting false for ordinary local HTTP development; enabling it on an HTTP-only local server prevents the browser from sending the session cookie.
