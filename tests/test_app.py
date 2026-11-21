@@ -3,6 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
+from werkzeug.security import generate_password_hash
 
 os.environ.setdefault("SECRET_KEY", "test-secret-key")
 os.environ.setdefault("ADMIN_USERNAME", "test-admin")
@@ -82,6 +83,27 @@ class BlogRouteTests(unittest.TestCase):
         self.assertIn(b"We couldn't find that page", response.data)
 
 
+
+
+    def test_admin_session_cookie_uses_safe_defaults(self):
+        self.assertTrue(app.config["SESSION_COOKIE_HTTPONLY"])
+        self.assertEqual(app.config["SESSION_COOKIE_SAMESITE"], "Lax")
+        self.assertEqual(app.config["PERMANENT_SESSION_LIFETIME"].total_seconds(), 1800)
+
+    def test_successful_login_creates_a_permanent_session(self):
+        app.config.update(
+            WTF_CSRF_ENABLED=False,
+            ADMIN_USERNAME="test-admin",
+            ADMIN_PASSWORD_HASH=generate_password_hash("correct-password")
+        )
+        response = self.client.post("/admin/login", data={
+            "username": "test-admin",
+            "password": "correct-password"
+        })
+        self.assertEqual(response.status_code, 302)
+        with self.client.session_transaction() as session:
+            self.assertTrue(session.get("admin_logged_in"))
+            self.assertTrue(session.permanent)
 
     def test_admin_post_without_csrf_token_is_rejected(self):
         response = self.client.post("/admin/login", data={
