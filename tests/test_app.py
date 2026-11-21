@@ -91,15 +91,15 @@ class BlogRouteTests(unittest.TestCase):
         self.assertEqual(app.config["PERMANENT_SESSION_LIFETIME"].total_seconds(), 1800)
 
     def test_successful_login_creates_a_permanent_session(self):
-        app.config.update(
-            WTF_CSRF_ENABLED=False,
-            ADMIN_USERNAME="test-admin",
-            ADMIN_PASSWORD_HASH=generate_password_hash("correct-password")
-        )
-        response = self.client.post("/admin/login", data={
-            "username": "test-admin",
-            "password": "correct-password"
-        })
+        with patch.dict(app.config, {
+            "WTF_CSRF_ENABLED": False,
+            "ADMIN_USERNAME": "test-admin",
+            "ADMIN_PASSWORD_HASH": generate_password_hash("correct-password")
+        }):
+            response = self.client.post("/admin/login", data={
+                "username": "test-admin",
+                "password": "correct-password"
+            })
         self.assertEqual(response.status_code, 302)
         with self.client.session_transaction() as session:
             self.assertTrue(session.get("admin_logged_in"))
