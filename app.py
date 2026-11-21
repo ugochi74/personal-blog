@@ -274,6 +274,7 @@ def login():
         ):
             session.clear()
             session["admin_logged_in"] = True
+            session.permanent = True
 
             return redirect(url_for("dashboard"))
 
