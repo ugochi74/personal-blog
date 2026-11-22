@@ -369,9 +369,9 @@ def download_backup():
 
         backup_zip.writestr(
             "BACKUP-INFO.txt",
-            "Personal Blog content backup\\n"
-            "Contains article Markdown files (including drafts) and attached book PDFs.\\n"
-            "Keep this archive in a safe, private location.\\n"
+            "Personal Blog content backup\n"
+            "Contains article Markdown files (including drafts) and attached book PDFs.\n"
+            "Keep this archive in a safe, private location.\n"
         )
 
     backup_buffer.seek(0)
