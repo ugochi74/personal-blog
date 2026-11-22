@@ -13,6 +13,7 @@
         </div>
         <div class="dashboard-actions">
             <a class="button button-primary" href="{{ url_for('add_article') }}">＋ New Article</a>
+            <a class="button button-quiet" href="{{ url_for('download_backup') }}">Download backup ↓</a>
             <a class="button button-quiet" href="{{ url_for('home') }}" target="_blank" rel="noopener">View blog ↗</a>
             <form method="POST" action="{{ url_for('logout') }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
