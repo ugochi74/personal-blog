@@ -98,3 +98,20 @@ SESSION_COOKIE_SECURE=true
 ```
 
 Keep this setting false for ordinary local HTTP development; enabling it on an HTTP-only local server prevents the browser from sending the session cookie.
+
+
+## Downloading a content backup
+
+Administrators can select **Download backup** from the dashboard to create a ZIP archive containing:
+
+- Every article Markdown file in `articles/`, including unpublished drafts.
+- Every attached PDF in `static/book_pdfs/`.
+- A short backup information file.
+
+The backup is generated when requested and sent directly to the administrator's browser; it is not stored permanently on the server. Keep downloaded backups private because they can contain unpublished writing and licensed documents. This is a manual backup feature, not an automatic scheduled backup.
+
+To verify the backup route and its access control, run:
+
+```bash
+python -m unittest discover -s tests -v
+```
