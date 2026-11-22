@@ -1,5 +1,7 @@
 
 from pathlib import Path
+from io import BytesIO
+from zipfile import ZIP_DEFLATED, ZipFile
 from datetime import datetime
 from email.utils import format_datetime
 from xml.etree import ElementTree as ET
@@ -347,6 +349,39 @@ def dashboard():
         selected_category=selected_category,
         sort_by=sort_by,
         result_count=len(articles)
+    )
+
+
+# Download a complete backup of articles and attached book PDFs
+@app.route("/admin/backup")
+@login_required
+def download_backup():
+    backup_buffer = BytesIO()
+
+    with ZipFile(backup_buffer, "w", compression=ZIP_DEFLATED) as backup_zip:
+        if ARTICLES_DIR.is_dir():
+            for article_file in sorted(ARTICLES_DIR.glob("*.md")):
+                backup_zip.write(article_file, arcname=f"articles/{article_file.name}")
+
+        if BOOK_PDF_DIR.is_dir():
+            for pdf_file in sorted(BOOK_PDF_DIR.glob("*.pdf")):
+                backup_zip.write(pdf_file, arcname=f"book_pdfs/{pdf_file.name}")
+
+        backup_zip.writestr(
+            "BACKUP-INFO.txt",
+            "Personal Blog content backup\\n"
+            "Contains article Markdown files (including drafts) and attached book PDFs.\\n"
+            "Keep this archive in a safe, private location.\\n"
+        )
+
+    backup_buffer.seek(0)
+    backup_name = datetime.now().strftime("personal-blog-backup-%Y%m%d-%H%M%S.zip")
+
+    return send_file(
+        backup_buffer,
+        mimetype="application/zip",
+        as_attachment=True,
+        download_name=backup_name
     )
 
 
