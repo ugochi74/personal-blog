@@ -1,5 +1,7 @@
 import os
 import tempfile
+import zipfile
+from io import BytesIO
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -127,6 +129,30 @@ class BlogRouteTests(unittest.TestCase):
         response = self.client.get("/admin/dashboard")
         self.assertEqual(response.status_code, 302)
         self.assertIn("/admin/login", response.headers["Location"])
+
+
+    def test_backup_requires_admin_login(self):
+        response = self.client.get("/admin/backup")
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/admin/login", response.headers["Location"])
+
+    def test_admin_can_download_backup_with_articles_and_book_pdfs(self):
+        (self.pdf_dir / "sample-book.pdf").write_bytes(b"%PDF-test-content")
+        with self.client.session_transaction() as session:
+            session["admin_logged_in"] = True
+
+        response = self.client.get("/admin/backup")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.mimetype, "application/zip")
+        self.assertIn("attachment;", response.headers["Content-Disposition"])
+
+        with zipfile.ZipFile(BytesIO(response.data)) as backup_zip:
+            names = backup_zip.namelist()
+            self.assertIn("articles/published-test-article.md", names)
+            self.assertIn("articles/private-draft-article.md", names)
+            self.assertIn("book_pdfs/sample-book.pdf", names)
+            self.assertIn("BACKUP-INFO.txt", names)
+            self.assertEqual(backup_zip.read("book_pdfs/sample-book.pdf"), b"%PDF-test-content")
 
     def test_admin_dashboard_shows_article_counts(self):
         with self.client.session_transaction() as session:
