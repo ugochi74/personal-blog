@@ -7,6 +7,7 @@ from email.utils import format_datetime
 from xml.etree import ElementTree as ET
 from functools import wraps
 from urllib.parse import urlparse
+from uuid import uuid4
 
 import frontmatter
 import markdown
@@ -45,6 +46,9 @@ csrf = CSRFProtect(app)
 ARTICLES_DIR = Path(__file__).parent / "articles"
 BOOK_PDF_DIR = Path(__file__).parent / "static" / "book_pdfs"
 BOOK_PDF_DIR.mkdir(parents=True, exist_ok=True)
+COVER_IMAGE_DIR = Path(__file__).parent / "static" / "uploads" / "covers"
+COVER_IMAGE_DIR.mkdir(parents=True, exist_ok=True)
+MAX_COVER_IMAGE_SIZE = 5 * 1024 * 1024
 app.config["MAX_CONTENT_LENGTH"] = 25 * 1024 * 1024
 
 
@@ -75,6 +79,7 @@ def get_all_articles():
             "published": post.metadata.get("published", True),
             "excerpt": post.metadata.get("excerpt", ""),
             "featured": post.metadata.get("featured", False),
+            "cover_image": post.metadata.get("cover_image", ""),
         }
 
         articles.append(article)
@@ -114,6 +119,50 @@ def valid_book_pdf(upload):
     file_header = upload.stream.read(5)
     upload.stream.seek(0)
     return file_header == b"%PDF-"
+
+
+def valid_cover_image(upload):
+    """Accept small JPEG, PNG, and WebP images based on their file signatures."""
+    if not upload or not upload.filename:
+        return False
+
+    extension = Path(upload.filename).suffix.lower()
+    if extension not in {".jpg", ".jpeg", ".png", ".webp"}:
+        return False
+
+    upload.stream.seek(0, 2)
+    file_size = upload.stream.tell()
+    upload.stream.seek(0)
+    if file_size == 0 or file_size > MAX_COVER_IMAGE_SIZE:
+        return False
+
+    header = upload.stream.read(12)
+    upload.stream.seek(0)
+
+    if extension in {".jpg", ".jpeg"}:
+        return header.startswith(b"\xff\xd8\xff")
+    if extension == ".png":
+        return header.startswith(b"\x89PNG\r\n\x1a\n")
+    return header.startswith(b"RIFF") and header[8:12] == b"WEBP"
+
+
+def save_cover_image(upload, slug):
+    """Save a validated image under a unique filename and return its static path."""
+    extension = Path(upload.filename).suffix.lower()
+    filename = f"{slug}-{uuid4().hex}{extension}"
+    upload.save(COVER_IMAGE_DIR / filename)
+    return f"uploads/covers/{filename}"
+
+
+def remove_cover_image(cover_image):
+    """Delete a cover only when its resolved path stays inside the cover directory."""
+    if not cover_image:
+        return
+
+    cover_path = (Path(__file__).parent / "static" / cover_image).resolve()
+    cover_directory = COVER_IMAGE_DIR.resolve()
+    if cover_path.parent == cover_directory and cover_path.is_file():
+        cover_path.unlink()
 
 
 # Protect admin routes
@@ -223,6 +272,7 @@ def article(slug):
         excerpt=excerpt,
         reading_time=estimate_reading_time(post.content),
         related_articles=related_articles,
+        cover_image=post.metadata.get("cover_image", ""),
         book_url=post.metadata.get("book_url", ""),
         book_pdf=(
             f"book_pdfs/{slug}.pdf"
@@ -367,10 +417,15 @@ def download_backup():
             for pdf_file in sorted(BOOK_PDF_DIR.glob("*.pdf")):
                 backup_zip.write(pdf_file, arcname=f"book_pdfs/{pdf_file.name}")
 
+        if COVER_IMAGE_DIR.is_dir():
+            for image_file in sorted(COVER_IMAGE_DIR.iterdir()):
+                if image_file.is_file():
+                    backup_zip.write(image_file, arcname=f"cover_images/{image_file.name}")
+
         backup_zip.writestr(
             "BACKUP-INFO.txt",
             "Personal Blog content backup\n"
-            "Contains article Markdown files (including drafts) and attached book PDFs.\n"
+            "Contains article Markdown files (including drafts), attached book PDFs, and cover images.\n"
             "Keep this archive in a safe, private location.\n"
         )
 
@@ -399,6 +454,7 @@ def add_article():
         published = request.form.get("published") == "on"
         book_url = request.form.get("book_url", "").strip()
         book_pdf = request.files.get("book_pdf")
+        cover_image = request.files.get("cover_image")
 
         if not title or not date or not content:
             flash("Please fill in all required fields.")
@@ -424,6 +480,10 @@ def add_article():
             flash("Please upload a valid PDF file.")
             return render_template("admin/add_article.html")
 
+        if cover_image and cover_image.filename and not valid_cover_image(cover_image):
+            flash("Please upload a JPEG, PNG, or WebP cover image no larger than 5 MB.")
+            return render_template("admin/add_article.html")
+
         post = frontmatter.Post(
             content,
             title=title,
@@ -432,6 +492,7 @@ def add_article():
             published=published,
             excerpt=excerpt,
             featured=featured,
+            cover_image="",
             book_url=book_url,
             book_pdf=f"{slug}.pdf" if book_pdf and book_pdf.filename else ""
         )
@@ -440,6 +501,10 @@ def add_article():
 
         if book_pdf and book_pdf.filename:
             book_pdf.save(BOOK_PDF_DIR / f"{slug}.pdf")
+
+        if cover_image and cover_image.filename:
+            post.metadata["cover_image"] = save_cover_image(cover_image, slug)
+            frontmatter.dump(post, str(article_file))
 
         flash("Article created successfully!")
         return redirect(url_for("dashboard"))
@@ -468,6 +533,7 @@ def edit_article(slug):
         published = request.form.get("published") == "on"
         book_url = request.form.get("book_url", "").strip()
         book_pdf = request.files.get("book_pdf")
+        cover_image = request.files.get("cover_image")
 
         if not title or not date or not content:
             flash("Please fill in all required fields.")
@@ -495,6 +561,10 @@ def edit_article(slug):
             flash("Please upload a valid PDF file.")
             return redirect(url_for("edit_article", slug=slug))
 
+        if cover_image and cover_image.filename and not valid_cover_image(cover_image):
+            flash("Please upload a JPEG, PNG, or WebP cover image no larger than 5 MB.")
+            return redirect(url_for("edit_article", slug=slug))
+
         post.metadata["title"] = title
         post.metadata["date"] = date
         post.metadata["category"] = category
@@ -507,6 +577,11 @@ def edit_article(slug):
         if book_pdf and book_pdf.filename:
             book_pdf.save(BOOK_PDF_DIR / f"{slug}.pdf")
             post.metadata["book_pdf"] = f"{slug}.pdf"
+
+        if cover_image and cover_image.filename:
+            old_cover_image = post.metadata.get("cover_image", "")
+            post.metadata["cover_image"] = save_cover_image(cover_image, slug)
+            remove_cover_image(old_cover_image)
 
         frontmatter.dump(post, str(article_file))
 
@@ -524,6 +599,7 @@ def edit_article(slug):
         "published": post.metadata.get("published", True),
         "book_url": post.metadata.get("book_url", ""),
         "book_pdf": post.metadata.get("book_pdf", ""),
+        "cover_image": post.metadata.get("cover_image", ""),
     }
 
     return render_template("admin/edit_article.html", article=article)
@@ -538,11 +614,14 @@ def delete_article(slug):
     if not article_file.is_file():
         abort(404)
 
+    post = frontmatter.load(article_file)
     article_file.unlink()
 
     book_pdf = BOOK_PDF_DIR / f"{slug}.pdf"
     if book_pdf.is_file():
         book_pdf.unlink()
+
+    remove_cover_image(post.metadata.get("cover_image", ""))
 
     flash("Article deleted successfully.")
     return redirect(url_for("dashboard"))
