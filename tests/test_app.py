@@ -22,6 +22,8 @@ class BlogRouteTests(unittest.TestCase):
         self.pdf_dir = Path(self.temp_dir.name) / "book_pdfs"
         self.articles_dir.mkdir()
         self.pdf_dir.mkdir()
+        self.cover_dir = Path(self.temp_dir.name) / "covers"
+        self.cover_dir.mkdir()
         published = frontmatter.Post(
             "A short article for testing the public blog.", title="Published Test Article",
             date="2026-11-15", category="Testing", excerpt="A test article summary.", published=True,
@@ -34,14 +36,17 @@ class BlogRouteTests(unittest.TestCase):
         frontmatter.dump(draft, str(self.articles_dir / "private-draft-article.md"))
         self.articles_patch = patch("app.ARTICLES_DIR", self.articles_dir)
         self.pdf_patch = patch("app.BOOK_PDF_DIR", self.pdf_dir)
+        self.cover_patch = patch("app.COVER_IMAGE_DIR", self.cover_dir)
         self.articles_patch.start()
         self.pdf_patch.start()
+        self.cover_patch.start()
         app.config.update(TESTING=True, WTF_CSRF_ENABLED=True, SECRET_KEY="test-secret-key")
         self.client = app.test_client()
 
     def tearDown(self):
         self.articles_patch.stop()
         self.pdf_patch.stop()
+        self.cover_patch.stop()
         self.temp_dir.cleanup()
 
     def test_homepage_only_lists_published_articles(self):
@@ -178,6 +183,84 @@ class BlogRouteTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"Published Test Article", response.data)
         self.assertNotIn(b"Private Draft Article", response.data)
+
+
+    def test_admin_can_create_article_with_valid_cover_image(self):
+        with self.client.session_transaction() as session:
+            session["admin_logged_in"] = True
+
+        image_bytes = b"\\x89PNG\\r\\n\\x1a\\n" + b"\\x00" * 8
+        with patch.dict(app.config, {"WTF_CSRF_ENABLED": False}):
+            response = self.client.post("/admin/articles/add", data={
+                "title": "Cover Upload Test",
+                "date": "2026-11-25",
+                "category": "Testing",
+                "content": "An article with a cover.",
+                "published": "on",
+                "cover_image": (BytesIO(image_bytes), "cover.png")
+            }, content_type="multipart/form-data")
+
+        self.assertEqual(response.status_code, 302)
+        post = frontmatter.load(str(self.articles_dir / "cover-upload-test.md"))
+        cover_path = post.metadata["cover_image"]
+        self.assertTrue(cover_path.startswith("uploads/covers/"))
+        saved_file = self.cover_dir / Path(cover_path).name
+        self.assertTrue(saved_file.is_file())
+
+        homepage = self.client.get("/")
+        self.assertIn(cover_path.encode(), homepage.data)
+        article_page = self.client.get("/article/cover-upload-test")
+        self.assertIn(cover_path.encode(), article_page.data)
+
+    def test_cover_upload_rejects_unsupported_file_types(self):
+        with self.client.session_transaction() as session:
+            session["admin_logged_in"] = True
+
+        with patch.dict(app.config, {"WTF_CSRF_ENABLED": False}):
+            response = self.client.post("/admin/articles/add", data={
+                "title": "Invalid Cover Test",
+                "date": "2026-11-25",
+                "content": "This should not be saved.",
+                "cover_image": (BytesIO(b"not an image"), "cover.gif")
+            }, content_type="multipart/form-data")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse((self.articles_dir / "invalid-cover-test.md").exists())
+        self.assertEqual(list(self.cover_dir.iterdir()), [])
+
+    def test_editing_article_without_new_cover_keeps_existing_image(self):
+        cover_file = self.cover_dir / "existing-cover.png"
+        cover_file.write_bytes(b"\\x89PNG\\r\\n\\x1a\\n" + b"\\x00" * 8)
+        post = frontmatter.Post(
+            "Original article content.",
+            title="Published Test Article",
+            date="2026-11-15",
+            category="Testing",
+            published=True,
+            cover_image="uploads/covers/existing-cover.png"
+        )
+        frontmatter.dump(post, str(self.articles_dir / "published-test-article.md"))
+
+        with self.client.session_transaction() as session:
+            session["admin_logged_in"] = True
+
+        with patch.dict(app.config, {"WTF_CSRF_ENABLED": False}):
+            response = self.client.post(
+                "/admin/articles/published-test-article/edit",
+                data={
+                    "title": "Published Test Article",
+                    "date": "2026-11-15",
+                    "category": "Testing",
+                    "content": "Updated article content.",
+                    "published": "on"
+                }
+            )
+
+        self.assertEqual(response.status_code, 302)
+        updated = frontmatter.load(str(self.articles_dir / "published-test-article.md"))
+        self.assertEqual(updated.metadata["cover_image"], "uploads/covers/existing-cover.png")
+        self.assertTrue(cover_file.is_file())
+
 
 
 
