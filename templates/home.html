@@ -20,6 +20,7 @@
     <div class="featured-grid">
         {% for article in featured_articles %}
             <article class="featured-card">
+                {% if article.cover_image %}<a class="card-cover-link" href="{{ url_for('article', slug=article.slug) }}"><img class="article-cover-image featured-cover-image" src="{{ url_for('static', filename=article.cover_image) }}" alt="Cover image for {{ article.title }}" loading="lazy"></a>{% endif %}
                 <span class="featured-label">Featured</span>
                 <p class="article-category">{{ article.category }}</p>
                 <h3><a href="{{ url_for('article', slug=article.slug) }}">{{ article.title }}</a></h3>
@@ -78,6 +79,7 @@
         <div class="article-grid">
             {% for article in articles %}
                 <article class="article-card">
+                    {% if article.cover_image %}<a class="card-cover-link" href="{{ url_for('article', slug=article.slug) }}"><img class="article-cover-image" src="{{ url_for('static', filename=article.cover_image) }}" alt="Cover image for {{ article.title }}" loading="lazy"></a>{% endif %}
                     <p class="article-category">{{ article.category }}</p>
                     <h3>
                         <a href="{{ url_for('article', slug=article.slug) }}">
