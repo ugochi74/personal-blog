@@ -9,6 +9,7 @@
 <article class="full-article">
     <a href="{{ url_for('home') }}">← Back to Home</a>
     <h1>{{ title }}</h1>
+    {% if cover_image %}<img class="article-hero-image" src="{{ url_for('static', filename=cover_image) }}" alt="Cover image for {{ title }}">{% endif %}
 
     <div class="article-meta-row">
         <div class="article-meta-details">
