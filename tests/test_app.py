@@ -266,6 +266,48 @@ class BlogRouteTests(unittest.TestCase):
 
 
 
+    def test_cover_upload_rejects_files_larger_than_five_megabytes(self):
+        with self.client.session_transaction() as session:
+            session["admin_logged_in"] = True
+
+        large_image = b"\\x89PNG\\r\\n\\x1a\\n" + b"\\x00" * (5 * 1024 * 1024)
+        with patch.dict(app.config, {"WTF_CSRF_ENABLED": False}):
+            response = self.client.post("/admin/articles/add", data={
+                "title": "Large Cover Test",
+                "date": "2026-11-25",
+                "content": "This image is too large.",
+                "cover_image": (BytesIO(large_image), "large.png")
+            }, content_type="multipart/form-data")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse((self.articles_dir / "large-cover-test.md").exists())
+        self.assertEqual(list(self.cover_dir.iterdir()), [])
+
+    def test_deleting_article_also_removes_its_cover_image(self):
+        cover_file = self.cover_dir / "delete-cover.png"
+        cover_file.write_bytes(b"cover-image")
+        post = frontmatter.Post(
+            "Article to delete.",
+            title="Delete Cover Test",
+            date="2026-11-25",
+            category="Testing",
+            published=True,
+            cover_image="uploads/covers/delete-cover.png"
+        )
+        frontmatter.dump(post, str(self.articles_dir / "delete-cover-test.md"))
+
+        with self.client.session_transaction() as session:
+            session["admin_logged_in"] = True
+
+        with patch.dict(app.config, {"WTF_CSRF_ENABLED": False}):
+            response = self.client.post("/admin/articles/delete-cover-test/delete")
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse((self.articles_dir / "delete-cover-test.md").exists())
+        self.assertFalse(cover_file.exists())
+
+
+
 
 if __name__ == "__main__":
     unittest.main()
