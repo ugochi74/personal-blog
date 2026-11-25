@@ -42,6 +42,17 @@
             <p class="editor-counter"><span id="excerpt-count">0</span>/300 characters</p>
             <p class="editor-help">This summary appears on article cards and can be used by search engines.</p>
         </div>
+        <div class="editor-field cover-upload-field">
+            <label for="cover_image">Replace article cover image (optional)</label>
+            {% if article.cover_image %}
+                <img class="cover-upload-preview" src="{{ url_for('static', filename=article.cover_image) }}" alt="Current cover image for {{ article.title }}">
+                <p class="editor-help">A cover image is currently attached. Leave this field empty to keep it.</p>
+            {% else %}
+                <p class="editor-help">No cover image is attached yet.</p>
+            {% endif %}
+            <input type="file" id="cover_image" name="cover_image" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+            <p class="editor-help">JPEG, PNG, or WebP only. Maximum file size: 5 MB.</p>
+        </div>
         <div class="book-access-fields">
             <h2>Complete book access (optional)</h2>
             <p class="editor-help">Add an official book page or upload a PDF you own or are authorized to distribute.</p>
