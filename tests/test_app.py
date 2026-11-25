@@ -143,6 +143,7 @@ class BlogRouteTests(unittest.TestCase):
 
     def test_admin_can_download_backup_with_articles_and_book_pdfs(self):
         (self.pdf_dir / "sample-book.pdf").write_bytes(b"%PDF-test-content")
+        (self.cover_dir / "sample-cover.png").write_bytes(b"cover-image-data")
         with self.client.session_transaction() as session:
             session["admin_logged_in"] = True
 
@@ -156,8 +157,10 @@ class BlogRouteTests(unittest.TestCase):
             self.assertIn("articles/published-test-article.md", names)
             self.assertIn("articles/private-draft-article.md", names)
             self.assertIn("book_pdfs/sample-book.pdf", names)
+            self.assertIn("cover_images/sample-cover.png", names)
             self.assertIn("BACKUP-INFO.txt", names)
             self.assertEqual(backup_zip.read("book_pdfs/sample-book.pdf"), b"%PDF-test-content")
+            self.assertEqual(backup_zip.read("cover_images/sample-cover.png"), b"cover-image-data")
 
     def test_admin_dashboard_shows_article_counts(self):
         with self.client.session_transaction() as session:
