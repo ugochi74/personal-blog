@@ -10,6 +10,16 @@ The article list displays six items per page and preserves active search and cat
 
 The homepage supports featured articles and short article summaries. Article pages display an estimated reading time, show related articles from the same category, and include basic description and Open Graph metadata for sharing. In the admin editor, write a short summary and select **Feature this article** to highlight it on the homepage. Reading time is estimated at 200 words per minute.
 
+## Article cover images
+
+Administrators can upload an optional cover image when creating or editing an article. Supported formats are JPEG, PNG, and WebP, with a maximum file size of 5 MB. The application checks the file signature as well as the extension before saving it.
+
+Cover images appear on homepage article cards and at the top of the article page. When editing an article, leaving the image field empty keeps the current cover. Replacing a cover removes the previous image, and deleting an article removes its cover image.
+
+Images are stored in `static/uploads/covers/`. On a hosted deployment, use persistent file storage or an external image service because some platforms clear uploaded files during redeployment. Cover images are also included in the administrator's downloadable content backup.
+
+Only upload images that you own or have permission to use.
+
 ## Complete book access
 
 Each article can optionally include:
@@ -106,6 +116,7 @@ Administrators can select **Download backup** from the dashboard to create a ZIP
 
 - Every article Markdown file in `articles/`, including unpublished drafts.
 - Every attached PDF in `static/book_pdfs/`.
+- Every uploaded article cover image in `static/uploads/covers/`.
 - A short backup information file.
 
 The backup is generated when requested and sent directly to the administrator's browser; it is not stored permanently on the server. Keep downloaded backups private because they can contain unpublished writing and licensed documents. This is a manual backup feature, not an automatic scheduled backup.
