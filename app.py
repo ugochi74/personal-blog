@@ -402,7 +402,7 @@ def dashboard():
     )
 
 
-# Download a complete backup of articles and attached book PDFs
+# Download a complete backup of articles, book PDFs, and cover images
 @app.route("/admin/backup")
 @login_required
 def download_backup():
@@ -549,7 +549,8 @@ def edit_article(slug):
                     "content": content,
                     "published": published,
                     "book_url": book_url,
-                    "book_pdf": post.metadata.get("book_pdf", "")
+                    "book_pdf": post.metadata.get("book_pdf", ""),
+                    "cover_image": post.metadata.get("cover_image", "")
                 }
             )
 
