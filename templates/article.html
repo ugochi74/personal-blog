@@ -6,7 +6,11 @@
 {% block og_description %}{{ excerpt }}{% endblock %}
 
 {% block content %}
-<article class="full-article">
+<div class="reading-progress-track" aria-hidden="true">
+    <div class="reading-progress-bar" id="reading-progress-bar"></div>
+</div>
+
+<article class="full-article" id="article-start">
     <a href="{{ url_for('home') }}">← Back to Home</a>
     <h1>{{ title }}</h1>
     {% if cover_image %}<img class="article-hero-image" src="{{ url_for('static', filename=cover_image) }}" alt="Cover image for {{ title }}">{% endif %}
@@ -47,8 +51,16 @@
         </section>
     {% endif %}
 
-    <div class="article-content">
-        {{ content | safe }}
+    <div class="article-reader-layout">
+        <aside class="article-toc" id="article-toc" aria-label="Table of contents" hidden>
+            <h2>On this page</h2>
+            <nav aria-label="Article sections">
+                <ol id="article-toc-list"></ol>
+            </nav>
+        </aside>
+        <div class="article-content" id="article-content">
+            {{ content | safe }}
+        </div>
     </div>
 </article>
 
@@ -73,29 +85,5 @@
 </section>
 {% endif %}
 
-<script>
-    const shareButton = document.querySelector(".share-article-button");
-    if (shareButton) {
-        shareButton.addEventListener("click", async () => {
-            const shareData = {
-                title: shareButton.dataset.shareTitle,
-                url: shareButton.dataset.shareUrl
-            };
-            try {
-                if (navigator.share) {
-                    await navigator.share(shareData);
-                } else if (navigator.clipboard) {
-                    await navigator.clipboard.writeText(shareData.url);
-                    shareButton.textContent = "Link copied";
-                } else {
-                    window.prompt("Copy this article link:", shareData.url);
-                }
-            } catch (error) {
-                if (error.name !== "AbortError") {
-                    window.prompt("Copy this article link:", shareData.url);
-                }
-            }
-        });
-    }
-</script>
+<script src="{{ url_for('static', filename='js/article-reader.js') }}" defer></script>
 {% endblock %}
