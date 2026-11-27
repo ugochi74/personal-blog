@@ -126,3 +126,10 @@ To verify the backup route and its access control, run:
 ```bash
 python -m unittest discover -s tests -v
 ```
+
+
+## Article reading experience
+
+Article pages include a reading progress indicator and an automatically generated table of contents. The table of contents appears when an article contains at least three second- or third-level headings, links directly to each section, and highlights the section currently being read when browser intersection observation is supported. On wider screens it stays beside the article; on smaller screens it appears above the content. Articles with fewer than three section headings keep a clean, uncluttered layout.
+
+The reader interface is implemented in `static/js/article-reader.js` and styled in `static/css/style.css`.
